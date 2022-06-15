@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+jobs:
+  ci:
+    runs-on: ubuntu-20.04
+    steps:
+    - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VAULT_CLI_VERSION: "1.10.4"
+        TERRAFORM_VERSION: "1.2.2"
+        VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+        VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+        VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+      run: |
+        curl -s https://raw.githubusercontent.com/OriHoch/uumpa-ci-toolbox/65a0704332e63d51f63981dbb25cd83682dc4078/bin/github_actions_install.sh \
+          | bash -s 4ed9d7055f0aa9629de1291fe0f42e154709b0b6 OriHoch/uumpa-ci-toolbox &&\
+        uci github actions self-checkout --config-user-name "hasadna-iac-ci" &&\
+        uci vault install --version $VAULT_CLI_VERSION &&\
+        uci terraform install --version $TERRAFORM_VERSION &&\
+        export VAULT_TOKEN="$(uci vault approle-login $VAULT_ROLE_ID $VAULT_SECRET_ID)" &&\
+        eval "$(uci vault read-env-vars kv/data/Projects/iac/terraform_ '{"TERRAFORM_BACKEND_CONFIG": "backend-config"}')" &&\
+        eval "$(uci vault read-env-vars kv/data/Projects/iac/aws '{"AWS_ACCESS_KEY_ID": "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY": "AWS_SECRET_ACCESS_KEY"}')" &&\
+        export AWS_ACCESS_KEY_ID && export AWS_SECRET_ACCESS_KEY &&\
+        terraform init -backend-config="${TERRAFORM_BACKEND_CONFIG}" &&\
+        if [ "$(uci github actions get-branch-name)" == "main" ]; then
+          terraform apply -input=false -auto-approve
+        else
+          terraform plan -input=false -lock=false
+        fi
