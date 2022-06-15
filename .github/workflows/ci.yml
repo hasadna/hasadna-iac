@@ -6,6 +6,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VAULT_CLI_VERSION: "1.10.4"
         TERRAFORM_VERSION: "1.2.2"
         VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
