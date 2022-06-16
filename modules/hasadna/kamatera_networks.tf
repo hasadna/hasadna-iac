@@ -1,5 +1,5 @@
 resource "kamatera_network" "hasadna" {
-  datacenter_id = data.kamatera_datacenter.israel.id
+  datacenter_id = "IL"
   name = "hasadna"
 
   subnet {
@@ -7,3 +7,14 @@ resource "kamatera_network" "hasadna" {
     bit = 23
   }
 }
+
+resource "kamatera_network" "k972il_cluster" {
+  datacenter_id = "IL"
+  name = "k972il-cluster"
+
+  subnet {
+    ip = "172.16.0.0"
+    bit = 23
+  }
+}
+

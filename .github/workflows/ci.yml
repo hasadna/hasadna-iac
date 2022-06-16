@@ -25,8 +25,4 @@ jobs:
         export AWS_ACCESS_KEY_ID && export AWS_SECRET_ACCESS_KEY &&\
         export KAMATERA_API_CLIENT_ID && export KAMATERA_API_SECRET &&\
         terraform init -backend-config="${TERRAFORM_BACKEND_CONFIG}" &&\
-        # if [ "$(uci github actions get-branch-name)" == "main" ]; then
-        #   terraform apply -input=false -auto-approve
-        # else
-          terraform plan -input=false -lock=false
-        # fi
+        terraform plan -input=false -lock=false
