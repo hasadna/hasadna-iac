@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "4.18.0"
     }
+    kamatera = {
+      source  = "Kamatera/kamatera"
+      version = "0.8.7"
+    }
   }
 }
 
