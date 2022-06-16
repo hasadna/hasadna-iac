@@ -27,6 +27,12 @@ export KAMATERA_API_CLIENT_ID=
 export KAMATERA_API_SECRET=
 ```
 
+Set path to kube config with credentials for hasadna main kubernetes cluster:
+
+```
+export KUBE_CONFIG_PATH=
+```
+
 Run Terraform commands:
 
 ```
