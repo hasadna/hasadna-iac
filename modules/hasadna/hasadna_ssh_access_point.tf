@@ -36,7 +36,7 @@ resource null_resource "authorized_keys_hasadna_ssh_access_point" {
 resource null_resource "firewall_hasadna_ssh_access_point" {
   depends_on = [null_resource.authorized_keys_hasadna_ssh_access_point]
   triggers = {
-    version = 2
+    version = 3
   }
   provisioner "remote-exec" {
     connection {
@@ -45,7 +45,14 @@ resource null_resource "firewall_hasadna_ssh_access_point" {
       port = var.hasadna_ssh_access_point_ssh_port
     }
     inline = [
-      "ufw --force reset && ufw allow ${var.hasadna_ssh_access_point_ssh_port} && ufw --force enable"
+      <<EOF
+ufw --force reset &&\
+ufw default allow outgoing &&\
+ufw default deny incoming &&\
+ufw default deny routed &&\
+ufw allow ${var.hasadna_ssh_access_point_ssh_port} &&\
+ufw --force enable
+EOF
     ]
   }
 }
@@ -67,15 +74,6 @@ sed -Ei 's/^Port .*$/Port ${var.hasadna_ssh_access_point_ssh_port}/' /etc/ssh/ss
 sed -Ei 's/^PasswordAuthentication .*$/PasswordAuthentication no/' /etc/ssh/sshd_config &&\
 systemctl reload ssh.service &&\
 if ! [ -e .ssh/id_rsa ]; then ssh-keygen -t rsa -b 4096 -C "hasadna-ssh-access-point" -N "" -f .ssh/id_rsa; fi &&\
-echo "
-Host hasadna-nfs1
-  HostName ${kamatera_server.hasadna_nfs1.private_ips[0]}
-  User root
-
-Host k972il-management
-  HostName ${kamatera_server.k972il_cluster2_management.public_ips[0]}
-  User root
-" > .ssh/config &&\
 wget -Orancher.tar.gz https://releases.rancher.com/cli2/v2.3.2/rancher-linux-amd64-v2.3.2.tar.gz &&\
 tar -xzvf rancher.tar.gz && mv rancher-v2.3.2/rancher /usr/local/bin/rancher &&\
 chmod +x /usr/local/bin/rancher && rm -rf rancher-v2.3.2 && rancher --version &&\
