@@ -60,7 +60,7 @@ EOF
 resource null_resource "hasadna_ssh_access_point_provision" {
   depends_on = [null_resource.authorized_keys_hasadna_ssh_access_point]
   triggers = {
-    version = 4
+    version = 5
   }
   provisioner "remote-exec" {
     connection {

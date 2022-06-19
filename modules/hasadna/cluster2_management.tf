@@ -22,7 +22,7 @@ resource null_resource "k972il_cluster2_management_ssh_access_point" {
   depends_on = [kamatera_server.k972il_cluster2_management, null_resource.hasadna_ssh_access_point_provision]
   triggers = {
     authorized_keys = local.hasadna_authorized_keys
-    version = 1
+    version = 2
   }
   provisioner "remote-exec" {
     connection {
@@ -39,7 +39,18 @@ Host k972il-management
   User root
 "
 fi &&\
-scp .ssh/authorized_keys k972il-management:.ssh/authorized_keys
+scp .ssh/authorized_keys k972il-management:.ssh/authorized_keys &&\
+ssh k972il-management "
+ufw --force reset &&\
+ufw default allow outgoing &&\
+ufw default allow incoming &&\
+ufw default deny routed &&\
+ufw allow in from ${kamatera_server.k972il_cluster2_management.public_ips[0]} to any &&\
+ufw allow in from ${kamatera_server.k972il_jenkins.public_ips[0]} to any &&\
+ufw allow in from ${kamatera_server.hasadna_ssh_access_point.public_ips[0]} to any &&\
+ufw deny in on eth0 to any port 22 &&\
+ufw --force enable
+"
 EOF
     ]
   }
