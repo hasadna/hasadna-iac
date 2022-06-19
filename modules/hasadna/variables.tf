@@ -11,3 +11,8 @@ variable "hasadna_ssh_access_point_ssh_port" {
   type = string
   sensitive = true
 }
+
+variable "rancher_admin_token" {
+  type = string
+  sensitive = true
+}

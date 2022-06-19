@@ -49,3 +49,38 @@ resource null_resource "firewall_hasadna_ssh_access_point" {
     ]
   }
 }
+
+resource null_resource "hasadna_ssh_access_point_provision" {
+  depends_on = [null_resource.authorized_keys_hasadna_ssh_access_point]
+  triggers = {
+    version = 4
+  }
+  provisioner "remote-exec" {
+    connection {
+      host        = kamatera_server.hasadna_ssh_access_point.public_ips[0]
+      private_key = var.ssh_private_key
+      port        = var.hasadna_ssh_access_point_ssh_port
+    }
+    inline = [
+      <<EOF
+sed -Ei 's/^Port .*$/Port ${var.hasadna_ssh_access_point_ssh_port}/' /etc/ssh/sshd_config &&\
+sed -Ei 's/^PasswordAuthentication .*$/PasswordAuthentication no/' /etc/ssh/sshd_config &&\
+systemctl reload ssh.service &&\
+if ! [ -e .ssh/id_rsa ]; then ssh-keygen -t rsa -b 4096 -C "hasadna-ssh-access-point" -N "" -f .ssh/id_rsa; fi &&\
+echo "
+Host hasadna-nfs1
+  HostName ${kamatera_server.hasadna_nfs1.private_ips[0]}
+  User root
+
+Host k972il-management
+  HostName ${kamatera_server.k972il_cluster2_management.public_ips[0]}
+  User root
+" > .ssh/config &&\
+wget -Orancher.tar.gz https://releases.rancher.com/cli2/v2.3.2/rancher-linux-amd64-v2.3.2.tar.gz &&\
+tar -xzvf rancher.tar.gz && mv rancher-v2.3.2/rancher /usr/local/bin/rancher &&\
+chmod +x /usr/local/bin/rancher && rm -rf rancher-v2.3.2 && rancher --version &&\
+rancher login --token ${var.rancher_admin_token} --context ${local.rancher_context_hasadna_default} https://${cloudflare_record.k972il_rancher.hostname}
+EOF
+    ]
+  }
+}

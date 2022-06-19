@@ -24,6 +24,7 @@ def main():
         'TF_VAR_domain_infra_1': vault_read('Projects/iac/domains')['infra_1'],
         'TF_VAR_ssh_private_key': vault_read('Projects/iac/ssh')['id_ed25519'],
         'TF_VAR_hasadna_ssh_access_point_ssh_port': vault_read('Projects/iac/ssh')['hasadna_ssh_access_point_ssh_port'],
+        'TF_VAR_rancher_admin_token': vault_read('Projects/iac/rancher')['admin_token'],
     }
     envvars = []
     for k, v in values.items():
