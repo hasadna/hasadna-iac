@@ -4,7 +4,10 @@ resource "kubernetes_config_map" "tf_outputs" {
     namespace = "argocd"
   }
 
-  data = {
-    hasadna_nfs1_internal_ip = module.hasadna.hasadna_nfs1_internal_ip
-  }
+  data = merge(
+    {
+      hasadna_nfs1_internal_ip = module.hasadna.hasadna_nfs1_internal_ip
+    },
+    module.openbus.kubernetes_tf_outputs
+  )
 }

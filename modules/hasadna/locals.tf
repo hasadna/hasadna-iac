@@ -8,4 +8,12 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDZmytOYF/XMbF8x5/M+TUEHucU0SdYOw2hVqiguc+y
 EOF
   rancher_context_hasadna_default = "c-vrqxr:p-g6m98"
   rancher_project_system = "p-vchcx"
+  cluster_ingress_name = "ingress"
+  cluster_ingress_ips = [
+    "194.36.90.155",
+    "212.80.204.81",
+    "5.100.248.220",
+    "194.36.91.165",
+  ]
+  cluster_ingress_hostname = "${local.cluster_ingress_name}.${data.cloudflare_zone.hasadna_org_il.name}"
 }
