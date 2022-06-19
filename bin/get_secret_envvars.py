@@ -21,7 +21,9 @@ def main():
         'KAMATERA_API_SECRET': vault_read('Projects/iac/kamatera')['secret'],
         'KUBE_CONFIG_PATH': '.kubeconfig',
         'TF_VAR_cloudflare_api_token': vault_read('Projects/iac/cloudflare')['api_token'],
-        'TF_VAR_domain_infra_1': vault_read('Projects/iac/domains')['infra_1']
+        'TF_VAR_domain_infra_1': vault_read('Projects/iac/domains')['infra_1'],
+        'TF_VAR_ssh_private_key': vault_read('Projects/iac/ssh')['id_ed25519'],
+        'TF_VAR_hasadna_ssh_access_point_ssh_port': vault_read('Projects/iac/ssh')['hasadna_ssh_access_point_ssh_port'],
     }
     envvars = []
     for k, v in values.items():
