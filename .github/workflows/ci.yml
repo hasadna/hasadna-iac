@@ -19,12 +19,6 @@ jobs:
         uci vault install --version $VAULT_CLI_VERSION &&\
         uci terraform install --version $TERRAFORM_VERSION &&\
         export VAULT_TOKEN="$(uci vault approle-login $VAULT_ROLE_ID $VAULT_SECRET_ID)" &&\
-        eval "$(uci vault read-env-vars kv/data/Projects/iac/terraform_ '{"TERRAFORM_BACKEND_CONFIG": "backend-config"}')" &&\
-        eval "$(uci vault read-env-vars kv/data/Projects/iac/aws '{"AWS_ACCESS_KEY_ID": "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY": "AWS_SECRET_ACCESS_KEY"}')" &&\
-        eval "$(uci vault read-env-vars kv/data/Projects/iac/kamatera '{"KAMATERA_API_CLIENT_ID": "client_id", "KAMATERA_API_SECRET": "secret"}')" &&\
-        eval "$(uci vault read-env-vars kv/data/Projects/iac/k8s '{"KUBECONFIG_CONTENTS": "kubeconfig"}')" &&\
-        export AWS_ACCESS_KEY_ID && export AWS_SECRET_ACCESS_KEY &&\
-        export KAMATERA_API_CLIENT_ID && export KAMATERA_API_SECRET &&\
-        export KUBE_CONFIG_PATH=`mktemp` && echo "${KUBECONFIG_CONTENTS}" > $KUBE_CONFIG_PATH &&\
-        terraform init -backend-config="${TERRAFORM_BACKEND_CONFIG}" &&\
+        terraform init "-backend-config=$(bin/get_backend_config.py)" &&\
+        eval "$(bin/get_secret_envvars.py)" &&\
         terraform plan -input=false -lock=false

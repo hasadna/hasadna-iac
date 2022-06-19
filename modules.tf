@@ -4,6 +4,7 @@ module "anyway" {
 
 module "hasadna" {
   source = "./modules/hasadna"
+  domain_infra_1 = var.domain_infra_1
 }
 
 module "oknesset" {

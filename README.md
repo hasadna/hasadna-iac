@@ -7,30 +7,28 @@ To prevent destructive actions, to apply the changes you have to run locally as 
 
 ## Running locally
 
-Initialize (should only be done once, get the backend config string from vault `Projects/iac/terraform_`):
+Prerequisites:
+
+* Python3
+* [vault binary](https://www.vaultproject.io/downloads)
+
+Set vault credentials:
 
 ```
-terraform init -backend-config='BACKEND_CONFIG'
+export VAULT_ADDR=
+export VAULT_TOKEN=
 ```
 
-Set hasadna AWS account keys from Vault `Projects/iac/aws`:
+Initialize (should only be done once):
 
 ```
-export AWS_ACCESS_KEY_ID=
-export AWS_SECRET_ACCESS_KEY=
+terraform init "-backend-config=$(bin/get_backend_config.py)"
 ```
 
-Set Kamatera API keys from Vault `Projects/iac/kamatera`:
+Set secret envvars:
 
 ```
-export KAMATERA_API_CLIENT_ID=
-export KAMATERA_API_SECRET=
-```
-
-Set path to kube config with credentials for hasadna main kubernetes cluster:
-
-```
-export KUBE_CONFIG_PATH=
+eval "$(bin/get_secret_envvars.py)"
 ```
 
 Run Terraform commands:

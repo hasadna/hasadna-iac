@@ -13,9 +13,17 @@ terraform {
       source  = "Kamatera/kamatera"
       version = "0.8.7"
     }
+    cloudflare = {
+      source = "cloudflare/cloudflare"
+      version = "3.17.0"
+    }
   }
 }
 
 provider "aws" {
-    region = "eu-west-1"
+  region = "eu-west-1"
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }
