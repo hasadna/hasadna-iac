@@ -63,7 +63,7 @@ resource "kamatera_server" "k972il_jenkins" {
   datacenter_id = "IL"
   cpu_type = "B"
   cpu_cores = 2
-  ram_mb = 4096
+  ram_mb = 8192
   disk_sizes_gb = [100]
   billing_cycle = "monthly"
   image_id = data.kamatera_image.israel_ubuntu_1804.id
