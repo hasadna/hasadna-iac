@@ -18,26 +18,6 @@ resource "kamatera_server" "hasadna_nfs1" {
   }
 }
 
-resource "kamatera_server" "hasadna_ssh_access_point" {
-  name = "hasadna-ssh-access-point"
-  datacenter_id = "IL"
-  cpu_type = "A"
-  cpu_cores = 1
-  ram_mb = 512
-  disk_sizes_gb = [5]
-  billing_cycle = "monthly"
-  image_id = data.kamatera_image.israel_ubuntu_1804.id
-
-  network {
-    name = "wan"
-  }
-
-  network {
-    name = kamatera_network.hasadna.full_name
-    ip = "172.16.0.7"
-  }
-}
-
 resource "kamatera_server" "k972il_cluster2_management" {
   name = "k972il-cluster2-management"
   datacenter_id = "IL"
