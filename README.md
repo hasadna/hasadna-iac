@@ -31,8 +31,20 @@ Set secret envvars:
 eval "$(bin/get_secret_envvars.py)"
 ```
 
-Run Terraform commands:
+Check the plan:
 
 ```
 terraform plan
+```
+
+Apply:
+
+```
+terraform apply
+```
+
+Save the outputs to Vault:
+
+```
+bin/save_outputs_to_vault.py
 ```
