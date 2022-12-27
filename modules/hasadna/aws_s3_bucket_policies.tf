@@ -4,7 +4,9 @@ resource "aws_s3_bucket_policy" "hasadna_kamatera_cluster_backups" {
     provider = aws.us_east_1
 }
 
-resource "aws_s3_bucket_policy" "israelites" {
-    bucket = aws_s3_bucket.israeltiles.id
-    policy = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"PublicReadForGetBucketObjects\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::israeltiles/*\"}]}"
-}
+# we are blocking public access for a while to this bucket to see if anyone complains about it..
+# block started Dev 27, 2022
+#resource "aws_s3_bucket_policy" "israelites" {
+#    bucket = aws_s3_bucket.israeltiles.id
+#    policy = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"PublicReadForGetBucketObjects\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::israeltiles/*\"}]}"
+#}

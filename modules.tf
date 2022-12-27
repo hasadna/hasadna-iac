@@ -6,10 +6,6 @@ module "hasadna" {
   rancher_admin_token = var.rancher_admin_token
 }
 
-module "oknesset" {
-  source = "./modules/oknesset"
-}
-
 module "openbus" {
   source = "./modules/openbus"
   hasadna_ssh_access_point_provision = module.hasadna.hasadna_ssh_access_point_provision
