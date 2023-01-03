@@ -17,5 +17,9 @@ module "wasabi_bucket_obus_do_2" {
 #   * ./mc alias set wa https://s3.eu-west-2.wasabisys.com ACCESS_KEY SECRET
 #   * ./mc alias set do https://ams3.digitaloceanspaces.com ACCESS_KEY SECRET
 # * sync:
-#   * ./mc mirror do/obus-do1/ wa/obus-do1/
-#   * ./mc mirror do/obus-do2/ wa/obus-do2/
+# screen
+# for name in obus-do1 obus-do2; do
+#   while ! ./mc mirror do/$name wa/$name --overwrite; do
+#     echo retrying... && sleep 5
+#   done
+# done
