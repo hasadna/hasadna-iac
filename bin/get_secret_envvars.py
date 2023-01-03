@@ -19,6 +19,8 @@ def main():
         'AWS_SECRET_ACCESS_KEY': vault_read('Projects/iac/aws')['AWS_SECRET_ACCESS_KEY'],
         'KAMATERA_API_CLIENT_ID': vault_read('Projects/iac/kamatera')['client_id'],
         'KAMATERA_API_SECRET': vault_read('Projects/iac/kamatera')['secret'],
+        'WASABI_ACCESS_KEY_ID': vault_read('Projects/iac/wasabi')['access-key'],
+        'WASABI_SECRET_ACCESS_KEY': vault_read('Projects/iac/wasabi')['secret-key'],
         'KUBE_CONFIG_PATH': '.kubeconfig',
         'TF_VAR_cloudflare_api_token': vault_read('Projects/iac/cloudflare')['api_token'],
         'TF_VAR_domain_infra_1': vault_read('Projects/iac/domains')['infra_1'],
