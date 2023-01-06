@@ -10,6 +10,12 @@ module "wasabi_bucket_obus_do_2" {
   public_read_only = true
 }
 
+module "wasabi_bucket_stride" {
+  source = "../common/wasabi_bucket"
+  name = "stride"
+  public_read_only = true
+}
+
 # sync from digital ocean to wasabi:
 # * create EC2 micro instance in Paris eu-west-3 (same region as the wasabi buckets)
 # * download minio client binary (mc)
