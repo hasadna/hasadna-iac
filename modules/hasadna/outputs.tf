@@ -22,3 +22,7 @@ output "cloudflare_zone_hasadna_org_il" {
 output "cluster_ingress_hostname" {
   value = local.cluster_ingress_hostname
 }
+
+output "cloudflare_records_infra" {
+  value = cloudflare_record.infra
+}

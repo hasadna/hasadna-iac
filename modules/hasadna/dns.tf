@@ -2,6 +2,7 @@ resource "cloudflare_record" "infra" {
   for_each = toset([
     "argo",
     "forum",
+    "leafy",
   ])
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
   name    = each.value
