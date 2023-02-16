@@ -16,6 +16,12 @@ resource "kamatera_server" "hasadna_nfs1" {
     name = kamatera_network.hasadna.full_name
     ip = "172.16.0.9"
   }
+
+  lifecycle {
+    ignore_changes = [
+      image_id
+    ]
+  }
 }
 
 resource null_resource "hasadna_nfs1_ssh_access_point" {
