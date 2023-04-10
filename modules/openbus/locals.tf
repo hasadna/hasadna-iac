@@ -5,5 +5,6 @@ locals {
     "open-bus-gtfs-data",
     "open-bus-siri-requester",
     "open-bus-webmon",
+    "open-bus-map-search",
   ]
 }
