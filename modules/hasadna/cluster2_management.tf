@@ -16,6 +16,10 @@ resource "kamatera_server" "k972il_cluster2_management" {
     name = kamatera_network.k972il_cluster.full_name
     ip = "172.16.0.2"
   }
+
+  lifecycle {
+    ignore_changes = [image_id]
+  }
 }
 
 resource "cloudflare_record" "k972il_rancher" {

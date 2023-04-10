@@ -11,6 +11,10 @@ resource "kamatera_server" "k972il_jenkins" {
   network {
     name = "wan"
   }
+
+  lifecycle {
+    ignore_changes = [image_id]
+  }
 }
 
 resource "cloudflare_record" "k972il_jenkins" {
