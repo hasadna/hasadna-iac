@@ -4,6 +4,7 @@ resource "cloudflare_record" "infra" {
     "forum",
     "leafy",
     "dear-diary",
+    "open-pension-ng",
   ])
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
   name    = each.value
