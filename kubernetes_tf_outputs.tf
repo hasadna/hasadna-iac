@@ -10,6 +10,7 @@ resource "kubernetes_config_map" "tf_outputs" {
       ingress-leafy-webapp = module.hasadna.cloudflare_records_infra["leafy"].hostname,
       ingress-dear-diary-webapp = module.hasadna.cloudflare_records_infra["dear-diary"].hostname,
       ingress-open-pension-ng-webapp = module.hasadna.cloudflare_records_infra["open-pension-ng"].hostname,
+      ingress-open-law-archive-webapp = module.hasadna.cloudflare_records_infra["open-law-archive"].hostname,
     },
     module.openbus.kubernetes_tf_outputs
   )
