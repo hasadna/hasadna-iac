@@ -20,3 +20,7 @@ module "openbus" {
 module "srm" {
   source = "./modules/srm"
 }
+
+module "datacity" {
+  source = "./modules/datacity"
+}
