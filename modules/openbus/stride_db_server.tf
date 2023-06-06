@@ -4,7 +4,7 @@ resource "kamatera_server" "hasadna_stride_db" {
   cpu_type = "B"
   cpu_cores = 6
   ram_mb = 32768
-  disk_sizes_gb = [1500]
+  disk_sizes_gb = [3000]
   billing_cycle = "monthly"
   image_id = "ubuntu"
 
@@ -15,6 +15,10 @@ resource "kamatera_server" "hasadna_stride_db" {
   network {
     name = "lan-82145-hasadna"
     ip = "172.16.0.16"
+  }
+
+  lifecycle {
+    ignore_changes = [disk_sizes_gb]
   }
 }
 
