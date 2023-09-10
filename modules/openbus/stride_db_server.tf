@@ -68,3 +68,13 @@ EOF
     ]
   }
 }
+
+## increase stack depth
+# nano /etc/security/limits.conf
+#   postgres - stack 32768
+#   * - stack 32768
+# nano /etc/systemd/system/postgresql@14-main.service.d/override.conf
+#   [Service]
+#   LimitSTACK=33554432
+# nano /etc/postgresql/14/main/postgresql.conf
+#   max_stack_depth = 16MB
