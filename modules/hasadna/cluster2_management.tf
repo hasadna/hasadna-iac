@@ -68,3 +68,39 @@ EOF
     ]
   }
 }
+
+resource null_resource "k972il_cluster2_management_prom_node_exporter" {
+  depends_on = [kamatera_server.k972il_cluster2_management, null_resource.hasadna_ssh_access_point_provision]
+  triggers = {
+    version = 1
+  }
+  provisioner "remote-exec" {
+    connection {
+      host        = kamatera_server.hasadna_ssh_access_point.public_ips[0]
+      private_key = var.ssh_private_key
+      port        = var.hasadna_ssh_access_point_ssh_port
+    }
+    inline = [
+      <<EOF
+ssh k972il-management "
+docker rm -f prom-node-exporter
+docker run -d --name prom-node-exporter \
+  -v /proc:/host/proc -v /sys:/host/sys -v /:/host --net=host --restart unless-stopped \
+  rancher/prom-node-exporter:v0.17.0 --web.listen-address=0.0.0.0:9796 --path.procfs=/host/proc \
+    --path.sysfs=/host/sys --path.rootfs=/host --collector.arp \
+    --collector.bcache --collector.bonding --no-collector.buddyinfo --collector.conntrack --collector.cpu --collector.diskstats \
+    --no-collector.drbd --collector.edac --collector.entropy --collector.filefd --collector.filesystem --collector.hwmon \
+    --collector.infiniband --no-collector.interrupts --collector.ipvs --no-collector.ksmd --collector.loadavg --no-collector.logind \
+    --collector.mdadm --collector.meminfo --no-collector.meminfo_numa --no-collector.mountstats --collector.netdev --collector.netstat \
+    --no-collector.nfs --no-collector.nfsd --no-collector.ntp --no-collector.processes --no-collector.qdisc --no-collector.runit \
+    --collector.sockstat --collector.stat --no-collector.supervisord --no-collector.systemd --no-collector.tcpstat --collector.textfile \
+    --collector.time     --collector.timex --collector.uname --collector.vmstat --no-collector.wifi --collector.xfs --collector.zfs
+"
+EOF
+    ]
+  }
+}
+
+output "rancher_ip" {
+  value = kamatera_server.k972il_cluster2_management.public_ips[0]
+}
