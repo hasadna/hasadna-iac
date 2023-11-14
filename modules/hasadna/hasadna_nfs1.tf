@@ -61,3 +61,10 @@ EOF
     ]
   }
 }
+
+# Added delete-old-logs.py from this directory to home directory on hasadna-nfs1 server
+# this script needs to run periodically to delete old airflow logs
+# currently I run it manually when disk space is low:
+# python3 delete-old-logs.py /srv/default2/openbus/airflow-home/logs 2023-09-12
+# python3 delete-old-logs.py /srv/default2/oknesset/airflow-home/logs 2023-09-12
+# python3 delete-old-logs.py /srv/default2/datacity/ckan-dgp-logs/airflow-logs 2023-09-12
