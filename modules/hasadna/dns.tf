@@ -6,6 +6,7 @@ resource "cloudflare_record" "infra" {
     "dear-diary",
     "open-pension-ng",
     "open-law-archive",
+    "*.k8s",
   ])
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
   name    = each.value
