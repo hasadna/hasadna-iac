@@ -15,4 +15,5 @@
 #. /var/lib/postgresql/stride-backup.env &&\
 #echo `date +"%Y-%m-%d %H:%M"` copying backup to S3 &&\
 #/usr/local/bin/aws s3 cp --quiet ./stride_db.sql.gz s3://${BUCKET_NAME}/stride_db.sql.gz &&\
+#rm ./stride_db.sql &&\
 #echo `date +"%Y-%m-%d %H:%M"` Great Success!
