@@ -7,13 +7,10 @@
 #
 #cd /var/lib/postgresql &&\
 #echo `date +"%Y-%m-%d %H:%M"` creating stride_db backup &&\
-#pg_dump -n public --no-privileges -f ./stride_db.sql &&\
-#du -h ./stride_db.sql &&\
-#echo `date +"%Y-%m-%d %H:%M"` gzipping stride_db backup &&\
-#gzip -kf ./stride_db.sql &&\
+#pg_dump -n public --no-privileges | gzip -c > ./stride_db.sql.gz &&\
 #du -h ./stride_db.sql.gz &&\
 #. /var/lib/postgresql/stride-backup.env &&\
 #echo `date +"%Y-%m-%d %H:%M"` copying backup to S3 &&\
 #/usr/local/bin/aws s3 cp --quiet ./stride_db.sql.gz s3://${BUCKET_NAME}/stride_db.sql.gz &&\
-#rm ./stride_db.sql &&\
+#rm ./stride_db.sql.gz &&\
 #echo `date +"%Y-%m-%d %H:%M"` Great Success!
