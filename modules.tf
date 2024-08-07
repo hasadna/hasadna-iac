@@ -23,4 +23,5 @@ module "srm" {
 
 module "datacity" {
   source = "./modules/datacity"
+  google_service_account = base64decode(var.datacity_google_service_account_b64)
 }

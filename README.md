@@ -2,15 +2,19 @@
 
 This repo contains Terraform configurations for managing Hasadna infrastructure as code.
 
-Every commit to the repo will run terraform plan in GitHub actions, you can check the actions log for details.
-To prevent destructive actions, to apply the changes you have to run locally as described below.
-
 ## Running locally
 
 Prerequisites:
 
-* Python3
+* Python3 + Poetry
 * [vault binary](https://www.vaultproject.io/downloads)
+* Gcloud CLI (Only for initializing datacity instances)
+
+Run following commands from poetry shell:
+
+```
+poetry shell
+```
 
 Set vault credentials:
 

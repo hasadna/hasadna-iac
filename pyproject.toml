@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "hasadna-iac"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.32.3"
+ruamel-yaml = "^0.18.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

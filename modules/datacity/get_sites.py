@@ -4,9 +4,10 @@ import json
 import base64
 
 import requests
-from ruamel import yaml
+from ruamel.yaml import YAML
 
 
+yaml = YAML(typ='safe')
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
 
 
@@ -28,11 +29,17 @@ def get_sites():
                 continue
             name = instance['name']
             content = base64.b64decode(requests.get(f'https://api.github.com/repos/hasadna/datacity-k8s/contents/instances/{name}/values.yaml', headers=get_github_headers()).json()['content'])
-            values = yaml.safe_load(content)
+            values = yaml.load(content)
+            if name.endswith('.disabled'):
+                name = name.replace('.disabled', '')
+                disabled = True
+            else:
+                disabled = False
             if values.get('active') and values.get('ready'):
                 yield {
                     'name': name,
-                    'url': values['siteUrl']
+                    'url': values['siteUrl'],
+                    'disabled': disabled,
                 }
         except Exception as e:
             raise Exception(f'failed to parse instance\n--- res json ---\n{res_json}\n\n--- instance ---\n{instance}') from e

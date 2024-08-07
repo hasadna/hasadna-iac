@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import json
+import base64
 import functools
 import subprocess
 
@@ -27,6 +28,7 @@ def main():
         'TF_VAR_ssh_private_key': vault_read('Projects/iac/ssh')['id_ed25519'],
         'TF_VAR_hasadna_ssh_access_point_ssh_port': vault_read('Projects/iac/ssh')['hasadna_ssh_access_point_ssh_port'],
         'TF_VAR_rancher_admin_token': vault_read('Projects/iac/rancher')['admin_token'],
+        'TF_VAR_datacity_google_service_account_b64': base64.b64encode(vault_read('Projects/datacity/iac')['terraform_google_service_account'].encode()).decode(),
         'STATUSCAKE_API_TOKEN': vault_read('Projects/iac/statuscake')['api_token'],
     }
     envvars = []

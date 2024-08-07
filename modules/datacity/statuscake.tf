@@ -1,5 +1,5 @@
 resource "statuscake_uptime_check" "apps" {
-    for_each = {for site in local.sites: site.name => site}
+    for_each = {for site in local.sites: site.name => site if !site.disabled}
     name = "datacity-${each.key}"
     tags = ["hasadna-iac", "datacity", "datacity-${each.key}"]
     check_interval = 60
@@ -17,7 +17,7 @@ resource "statuscake_uptime_check" "apps" {
 }
 
 resource "statuscake_uptime_check" "datasets_count" {
-    for_each = {for site in local.sites: site.name => site}
+    for_each = {for site in local.sites: site.name => site if !site.disabled}
     name = "datacity-${each.key}-datasets-count"
     tags = ["hasadna-iac", "datacity", "datacity-${each.key}", "datasets-count"]
     check_interval = 60
