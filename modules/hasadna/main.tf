@@ -6,6 +6,9 @@ terraform {
     cloudflare = {
       source = "cloudflare/cloudflare"
     }
+    github = {
+      source  = "integrations/github"
+    }
   }
 }
 
@@ -14,8 +17,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
-
 provider "aws" {
   alias  = "eu_west_3"
   region = "eu-west-3"
+}
+
+provider "github" {
+  owner = "hasadna"
 }

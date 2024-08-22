@@ -23,6 +23,12 @@ export VAULT_ADDR=
 export VAULT_TOKEN=
 ```
 
+Set GitHub Token:
+
+```
+export GITHUB_TOKEN=...
+```
+
 Initialize (should only be done once):
 
 ```
