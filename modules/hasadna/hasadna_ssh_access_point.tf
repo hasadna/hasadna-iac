@@ -6,7 +6,7 @@ resource "kamatera_server" "hasadna_ssh_access_point" {
   ram_mb = 512
   disk_sizes_gb = [5]
   billing_cycle = "monthly"
-  image_id = data.kamatera_image.israel_ubuntu_1804.id
+  image_id = local.kamatera_image_israel_ubuntu_1804_id
 
   network {
     name = "wan"

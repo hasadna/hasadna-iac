@@ -6,7 +6,7 @@ resource "kamatera_server" "k972il_jenkins" {
   ram_mb = 8192
   disk_sizes_gb = [100]
   billing_cycle = "monthly"
-  image_id = data.kamatera_image.israel_ubuntu_1804.id
+  image_id = local.kamatera_image_israel_ubuntu_1804_id
 
   network {
     name = "wan"

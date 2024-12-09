@@ -29,6 +29,8 @@ def main():
     outputs = json.loads(subprocess.check_output(['terraform', 'output', '-json']))
     values = {k: v['value'] for k, v in outputs.items()}
     set_values_startswith(values, 'hasadna_ssh_access_point')
+    set_values_startswith(values, 'hasadna_argoevents')
+    set_values_startswith(values, 'hasadna_argocd')
 
 
 if __name__ == "__main__":

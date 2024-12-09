@@ -6,7 +6,7 @@ resource "kamatera_server" "k972il_cluster2_management" {
   ram_mb = 4096
   disk_sizes_gb = [100]
   billing_cycle = "hourly"
-  image_id = data.kamatera_image.israel_ubuntu_1804.id
+  image_id = local.kamatera_image_israel_ubuntu_1804_id
 
   network {
     name = "wan"

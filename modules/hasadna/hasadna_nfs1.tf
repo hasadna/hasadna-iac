@@ -6,7 +6,7 @@ resource "kamatera_server" "hasadna_nfs1" {
   ram_mb = 2048
   disk_sizes_gb = [20, 200, 500]
   billing_cycle = "hourly"
-  image_id = data.kamatera_image.israel_ubuntu_1804.id
+  image_id = local.kamatera_image_israel_ubuntu_1804_id
 
   network {
     name = "wan"
