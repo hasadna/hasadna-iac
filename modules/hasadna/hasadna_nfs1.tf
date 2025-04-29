@@ -4,7 +4,7 @@ resource "kamatera_server" "hasadna_nfs1" {
   cpu_type = "T"
   cpu_cores = 2
   ram_mb = 2048
-  disk_sizes_gb = [20, 200, 500]
+  disk_sizes_gb = [20, 200, 1500]
   billing_cycle = "hourly"
   image_id = local.kamatera_image_israel_ubuntu_1804_id
 

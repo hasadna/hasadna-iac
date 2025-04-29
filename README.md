@@ -6,14 +6,20 @@ This repo contains Terraform configurations for managing Hasadna infrastructure 
 
 Prerequisites:
 
-* Python3 + Poetry
+* Python3 + [uv](https://pypi.org/project/uv/)
 * [vault binary](https://www.vaultproject.io/downloads)
-* Gcloud CLI (Only for initializing datacity instances)
+* Gcloud CLI
 
-Run following commands from poetry shell:
+Create venv and install dependencies
 
 ```
-poetry shell
+uv sync
+```
+
+Make sure to run all following commands from the venv
+
+```
+. .venv/bin/activate
 ```
 
 Set vault credentials:
@@ -32,29 +38,29 @@ export GITHUB_TOKEN=...
 Initialize (should only be done once):
 
 ```
-terraform init "-backend-config=$(bin/get_backend_config.py)"
+uv run terraform init "-backend-config=$(uv run bin/get_backend_config.py)"
 ```
 
 Set secret envvars:
 
 ```
-eval "$(bin/get_secret_envvars.py)"
+eval "$(uv run bin/get_secret_envvars.py)"
 ```
 
 Check the plan:
 
 ```
-terraform plan
+uv run terraform plan
 ```
 
 Apply:
 
 ```
-terraform apply
+uv run terraform apply
 ```
 
 Save the outputs to Vault:
 
 ```
-bin/save_outputs_to_vault.py
+uv run bin/save_outputs_to_vault.py
 ```
