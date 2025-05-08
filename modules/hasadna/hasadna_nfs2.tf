@@ -1,15 +1,16 @@
 resource "kamatera_server" "hasadna_nfs2" {
   name = "hasadna-nfs2"
   datacenter_id = "IL"
-  cpu_type = "T"
-  cpu_cores = 2
-  ram_mb = 2048
-  disk_sizes_gb = [20]  # other disks are attached manually from the old server
-  billing_cycle = "hourly"
+  cpu_type = "B"
+  cpu_cores = 4
+  ram_mb = 8192
+  disk_sizes_gb = [50, 200, 1500]
+  billing_cycle = "monthly"
   image_id = local.kamatera_image_israel_ubuntu_2404_id
 
   network {
     name = "wan"
+    ip = "auto"
   }
 
   network {
@@ -19,7 +20,8 @@ resource "kamatera_server" "hasadna_nfs2" {
 
   lifecycle {
     ignore_changes = [
-      image_id
+      image_id,
+      network
     ]
   }
 }
