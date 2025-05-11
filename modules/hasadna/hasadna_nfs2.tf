@@ -57,10 +57,3 @@ resource "kamatera_server" "hasadna_nfs2" {
 # ufw allow in from ${kamatera_server.hasadna_ssh_access_point.public_ips[0]} to any
 # ufw allow in on eth1 to any
 # ufw --force enable
-
-# Add delete-old-logs.py from this directory to home directory on hasadna-nfs1 server
-# this script needs to run periodically to delete old airflow logs
-# currently I run it manually when disk space is low, but there is also jenkins job
-# python3 delete-old-logs.py /srv/default2/openbus/airflow-home/logs 2023-09-12
-# python3 delete-old-logs.py /srv/default2/oknesset/airflow-home/logs 2023-09-12
-# python3 delete-old-logs.py /srv/default2/datacity/ckan-dgp-logs/airflow-logs 2023-09-12
