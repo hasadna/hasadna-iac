@@ -57,3 +57,30 @@ resource "kamatera_server" "hasadna_nfs2" {
 # ufw allow in from ${kamatera_server.hasadna_ssh_access_point.public_ips[0]} to any
 # ufw allow in on eth1 to any
 # ufw --force enable
+
+# sudo apt-get update
+# sudo apt-get install ca-certificates curl
+# sudo install -m 0755 -d /etc/apt/keyrings
+# sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+# sudo chmod a+r /etc/apt/keyrings/docker.asc
+# echo \
+#  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+#  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+#  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# sudo apt-get update
+# sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+#  docker run -d --name prom-node-exporter \
+#    -v /proc:/host/proc \
+#    -v /sys:/host/sys \
+#    -v /:/host \
+#    --net=host \
+#    --restart unless-stopped \
+#	rancher/mirrored-prometheus-node-exporter:v1.2.2 \
+#    --web.listen-address=172.16.0.9:9796 --path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/host --collector.arp \
+#    --collector.bcache --collector.bonding --no-collector.buddyinfo --collector.conntrack --collector.cpu --collector.diskstats \
+#    --no-collector.drbd --collector.edac --collector.entropy --collector.filefd --collector.filesystem --collector.hwmon \
+#    --collector.infiniband --no-collector.interrupts --collector.ipvs --no-collector.ksmd --collector.loadavg --no-collector.logind \
+#    --collector.mdadm --collector.meminfo --no-collector.meminfo_numa --no-collector.mountstats --collector.netdev --collector.netstat \
+#    --collector.nfs --collector.nfsd --no-collector.ntp --no-collector.processes --no-collector.qdisc --no-collector.runit --collector.sockstat \
+#    --collector.stat --no-collector.supervisord --no-collector.systemd --no-collector.tcpstat --collector.textfile --collector.time \
+#    --collector.timex --collector.uname --collector.vmstat --no-collector.wifi --collector.xfs --collector.zfs
