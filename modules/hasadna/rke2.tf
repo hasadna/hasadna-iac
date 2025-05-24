@@ -108,11 +108,22 @@ resource "null_resource" "rke2_install_controlplane1" {
         - 0.0.0.0
         - ${local.rke2_server_private_ip["controlplane1"]}
         - ${local.rke2_server_public_ip["controlplane1"]}
+      kube-controller-manager-arg:
+        - "bind-address=${local.rke2_server_private_ip["controlplane1"]}"
+      kube-scheduler-arg:
+        - "bind-address=${local.rke2_server_private_ip["controlplane1"]}"
+      etcd-expose-metrics: true
+      kube-proxy-arg:
+        - "metrics-bind-address=${local.rke2_server_private_ip["controlplane1"]}:10249"
     EOF
     command = <<-EOF
       curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${local.rke2_version} sh - &&\
-      systemctl enable rke2-server.service &&\
-      systemctl start rke2-server.service
+      if systemctl is-active --quiet rke2-server.service; then
+        systemctl restart rke2-server.service
+      else
+        systemctl enable rke2-server.service &&\
+        systemctl start rke2-server.service
+      fi
     EOF
   }
   provisioner "local-exec" {
@@ -141,11 +152,17 @@ resource "null_resource" "rke2_install_workers" {
       node-external-ip: ${local.rke2_server_public_ip[each.key]}
       token-file: /etc/rancher/rke2/node-token
       server: https://${local.rke2_server_private_ip["controlplane1"]}:9345
+      kube-proxy-arg:
+        - "metrics-bind-address=${local.rke2_server_private_ip[each.key]}:10249"
     EOF
     command = <<-EOF
       curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${local.rke2_version} INSTALL_RKE2_TYPE=agent sh - &&\
-      systemctl enable rke2-agent.service &&\
-      systemctl start rke2-agent.service
+      if systemctl is-active --quiet rke2-agent.service; then
+        systemctl restart rke2-agent.service
+      else
+        systemctl enable rke2-agent.service &&\
+        systemctl start rke2-agent.service
+      fi
     EOF
   }
   provisioner "local-exec" {
@@ -184,4 +201,17 @@ resource "null_resource" "rke2_kubeconfig" {
 provider "kubernetes" {
   alias = "rke2"
   config_path = var.rke2_kubeconfig_path
+}
+
+resource "kubernetes_node_taint" "rke2_controlplane_criticalonly" {
+  depends_on = [null_resource.rke2_kubeconfig]
+  provider = kubernetes.rke2
+  metadata {
+    name = "controlplane1"
+  }
+  taint {
+    key    = "CriticalAddonsOnly"
+    value  = "true"
+    effect = "NoExecute"
+  }
 }
