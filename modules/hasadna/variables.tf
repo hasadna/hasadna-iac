@@ -16,3 +16,18 @@ variable "rancher_admin_token" {
   type = string
   sensitive = true
 }
+
+variable "ssh_authorized_keys" {
+  type = string
+  sensitive = true
+}
+
+variable "vault_addr" {
+  type = string
+  sensitive = true
+}
+
+variable "rke2_kubeconfig_path" {
+  type = string
+  sensitive = true
+}

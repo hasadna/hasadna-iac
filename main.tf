@@ -8,7 +8,7 @@ terraform {
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
-      version = "2.11.0"
+      version = "2.37.1"
     }
     kamatera = {
       source  = "Kamatera/kamatera"
@@ -20,7 +20,11 @@ terraform {
     }
     github = {
       source  = "integrations/github"
-      version = "6.2.3"
+      version = "6.6.0"
+    }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "5.0.0"
     }
   }
 }
@@ -31,4 +35,14 @@ provider "aws" {
 
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
+}
+
+provider "kubernetes" {
+  alias = "rancher"
+  config_path = var.rancher_kubeconfig_path
+}
+
+provider "kubernetes" {
+  alias = "rke2"
+  config_path = var.rke2_kubeconfig_path
 }

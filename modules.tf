@@ -4,6 +4,9 @@ module "hasadna" {
   ssh_private_key = var.ssh_private_key
   hasadna_ssh_access_point_ssh_port = var.hasadna_ssh_access_point_ssh_port
   rancher_admin_token = var.rancher_admin_token
+  ssh_authorized_keys = var.ssh_authorized_keys
+  vault_addr = var.vault_addr
+  rke2_kubeconfig_path = var.rke2_kubeconfig_path
 }
 
 module "openbus" {

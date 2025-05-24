@@ -26,3 +26,28 @@ variable "datacity_google_service_account_b64" {
   type = string
   sensitive = true
 }
+
+variable "ssh_authorized_keys" {
+  type = string
+  sensitive = true
+}
+
+variable "vault_addr" {
+  type = string
+  sensitive = true
+}
+
+variable "default_admin_email" {
+  type = string
+  sensitive = true
+}
+
+variable "rke2_kubeconfig_path" {
+  type = string
+  sensitive = true
+}
+
+variable "rancher_kubeconfig_path" {
+  type = string
+  sensitive = true
+}
