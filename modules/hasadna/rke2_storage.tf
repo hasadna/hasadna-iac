@@ -16,6 +16,10 @@ locals {
         node = "worker1"
         rsync_from_nfs_path = "/hasadna/vault"
       }
+      terraform-state-db = {
+        node = "worker1"
+        # rsync_from_nfs_path = "/terraform/state_db"
+      }
     }
   }
 }
