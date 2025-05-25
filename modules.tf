@@ -17,7 +17,7 @@ module "openbus" {
   hasadna_ssh_access_point_ssh_port = var.hasadna_ssh_access_point_ssh_port
   ssh_private_key = var.ssh_private_key
   cloudflare_zone_hasadna_org_il = module.hasadna.cloudflare_zone_hasadna_org_il
-  cluster_ingress_hostname = module.hasadna.cluster_ingress_hostname
+  cluster_ingress_hostname = module.hasadna.rke2_cluster_ingress_hostname
 }
 
 module "srm" {

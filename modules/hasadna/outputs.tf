@@ -26,3 +26,11 @@ output "cluster_ingress_hostname" {
 output "cloudflare_records_infra" {
   value = cloudflare_record.infra
 }
+
+output "cloudflare_records_rke2_ingress_cnames" {
+  value = cloudflare_record.rke2_ingress_cnames
+}
+
+output "rke2_cluster_ingress_hostname" {
+  value = values(cloudflare_record.rke2_ingress)[0].hostname
+}

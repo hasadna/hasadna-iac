@@ -3,7 +3,7 @@ locals {
     {
       hasadna_nfs1_internal_ip = module.hasadna.hasadna_nfs1_internal_ip,
       ingress-leafy-webapp = module.hasadna.cloudflare_records_infra["leafy"].hostname,
-      ingress-dear-diary-webapp = module.hasadna.cloudflare_records_infra["dear-diary"].hostname,
+      ingress-dear-diary-webapp = module.hasadna.cloudflare_records_rke2_ingress_cnames["dear-diary"].hostname,
       ingress-open-pension-ng-webapp = module.hasadna.cloudflare_records_infra["open-pension-ng"].hostname,
       ingress-open-law-archive-webapp = module.hasadna.cloudflare_records_infra["open-law-archive"].hostname,
       rancher_ip = module.hasadna.rancher_ip
