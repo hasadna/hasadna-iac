@@ -97,8 +97,29 @@ resource "null_resource" "rke2_init_ssh" {
   }
 }
 
-resource "null_resource" "rke2_install_controlplane1" {
+resource "null_resource" "rke2_prepare_nodes" {
+  for_each = local.rke2_servers
   depends_on = [null_resource.rke2_init_ssh]
+  triggers = {
+    counter = 1
+    command = <<-EOF
+      echo 'vm.max_map_count=262144' > /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'net.ipv4.tcp_retries2=8' >> /etc/sysctl.d/99-hasadna.conf &&\
+      sysctl --system &&\
+      apt update && apt install -y nfs-common &&\
+      if ! [ -e /root/.ssh/id_rsa ]; then ssh-keygen -t rsa -b 4096 -N '' -f /root/.ssh/id_rsa; fi
+    EOF
+  }
+  provisioner "local-exec" {
+    command = <<-EOT
+      ssh -o ProxyJump=hasadna-ssh-access-point -p ${var.hasadna_ssh_access_point_ssh_port} root@${local.rke2_server_private_ip[each.key]} \
+        "${self.triggers.command}"
+    EOT
+  }
+}
+
+resource "null_resource" "rke2_install_controlplane1" {
+  depends_on = [null_resource.rke2_prepare_nodes]
   triggers = {
     counter = 2
     config = <<-EOF
