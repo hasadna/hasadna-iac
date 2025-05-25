@@ -8,6 +8,7 @@ locals {
       ram_mb = 16384
       disk_sizes_gb = [100]
       ingress = false
+      storage = false
     }
     worker1 = {
       type = "worker"
@@ -15,6 +16,7 @@ locals {
       ram_mb = 65536
       disk_sizes_gb = [100, 500]
       ingress = true
+      storage = "/dev/sdb1"
     }
   }
 }
@@ -108,13 +110,7 @@ resource "null_resource" "rke2_install_controlplane1" {
         - 0.0.0.0
         - ${local.rke2_server_private_ip["controlplane1"]}
         - ${local.rke2_server_public_ip["controlplane1"]}
-      kube-controller-manager-arg:
-        - "bind-address=${local.rke2_server_private_ip["controlplane1"]}"
-      kube-scheduler-arg:
-        - "bind-address=${local.rke2_server_private_ip["controlplane1"]}"
       etcd-expose-metrics: true
-      kube-proxy-arg:
-        - "metrics-bind-address=${local.rke2_server_private_ip["controlplane1"]}:10249"
     EOF
     command = <<-EOF
       curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${local.rke2_version} sh - &&\
@@ -152,8 +148,6 @@ resource "null_resource" "rke2_install_workers" {
       node-external-ip: ${local.rke2_server_public_ip[each.key]}
       token-file: /etc/rancher/rke2/node-token
       server: https://${local.rke2_server_private_ip["controlplane1"]}:9345
-      kube-proxy-arg:
-        - "metrics-bind-address=${local.rke2_server_private_ip[each.key]}:10249"
     EOF
     command = <<-EOF
       curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${local.rke2_version} INSTALL_RKE2_TYPE=agent sh - &&\
