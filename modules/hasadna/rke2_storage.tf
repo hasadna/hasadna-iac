@@ -25,6 +25,66 @@ locals {
         node = "worker1"
       }
     }
+    oknesset = {
+      data = {
+        node = "worker1"
+        create_pv = false
+        # old nfs path: /mnt/nfs/mnt/sdb3/srv/default/oknesset/pipelines/data/oknesset-nfs-gcepd/
+      }
+      pipelines = {
+        pvc_only_ref_existing = "data"
+      }
+      nginx = {
+        pvc_only_ref_existing = "data"
+      }
+      airflow-scheduler = {
+        pvc_only_ref_existing = "data"
+      }
+    }
+    budgetkey = {
+      postgres = {
+        node = "worker1"
+      }
+      pipelines = {
+        node = "worker2"
+      }
+      elasticsearch = {
+        node = "worker2"
+      }
+    }
+    odata = {
+      datastore-db = {
+        node = "worker2"
+      }
+      data = {
+        node = "worker2"
+        create_pv = false
+      }
+      nginx = {
+        pvc_only_ref_existing = "data"
+      }
+      pipelines = {
+        pvc_only_ref_existing = "data"
+      }
+      ckan = {
+        pvc_only_ref_existing = "data"
+      }
+      ckan-jobs = {
+        pvc_only_ref_existing = "data"
+      }
+    }
+    openbus = {
+      gtfs = {
+        node = "worker2"
+        create_pv = false
+      }
+      gtfs-nginx = {
+        pvc_only_ref_existing = "gtfs"
+      }
+      airflow-scheduler = {
+        pvc_only_ref_existing = "gtfs"
+      }
+    }
   }
   rke2_storage_flat = {
     for s in flatten(
@@ -33,8 +93,10 @@ locals {
           for name, storage in storages : {
             namespace = namespace
             name = name
-            node = storage.node
+            node = lookup(storage, "node", false)
+            create_pv = lookup(storage, "create_pv", true)
             create_pvc = lookup(storage, "create_pvc", true)
+            pvc_only_ref_existing = lookup(storage, "pvc_only_ref_existing", false)
           }
         ]
       ]
@@ -67,7 +129,7 @@ resource "null_resource" "rke2_mount_workers_storage" {
 }
 
 resource "null_resource" "rke2_storage" {
-  for_each = local.rke2_storage_flat
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node != false}
   depends_on = [null_resource.rke2_mount_workers_storage]
   triggers = {
     counter = lookup(each.value, "counter", 0)
@@ -85,8 +147,17 @@ resource "null_resource" "rke2_ensure_storage_namespaces" {
   depends_on = [null_resource.rke2_kubeconfig]
   triggers = {
     command = <<-EOF
-      KUBECONFIG=${var.rke2_kubeconfig_path} kubectl create namespace ${each.key} || true
+      export KUBECONFIG=${var.rke2_kubeconfig_path}
+      if ! kubectl get namespace ${each.key} >/dev/null 2>&1; then
+        echo "creating namespace ${each.key}"
+        kubectl create namespace ${each.key}
+      else
+        echo "Namespace ${each.key} already exists"
+      fi
     EOF
+  }
+  provisioner "local-exec" {
+    command = self.triggers.command
   }
 }
 
@@ -102,7 +173,7 @@ resource "kubernetes_storage_class" "rke2_local_storage" {
 }
 
 resource "kubernetes_persistent_volume" "rke2_storage" {
-  for_each = local.rke2_storage_flat
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pv}
   depends_on = [null_resource.rke2_kubeconfig, null_resource.rke2_storage]
   provider = kubernetes.rke2
   metadata {
@@ -124,21 +195,21 @@ resource "kubernetes_persistent_volume" "rke2_storage" {
           match_expressions {
             key      = "kubernetes.io/hostname"
             operator = "In"
-            values = [each.value.node]
+            values = [each.value.pvc_only_ref_existing == false ? each.value.node : local.rke2_storage[each.value.namespace][each.value.pvc_only_ref_existing].node]
           }
         }
       }
     }
     persistent_volume_source {
       local {
-        path = "/mnt/storage/${each.value.namespace}/${each.value.name}"
+        path = "/mnt/storage/${each.value.namespace}/${each.value.pvc_only_ref_existing == false ? each.value.name : each.value.pvc_only_ref_existing}"
       }
     }
   }
 }
 
 resource "kubernetes_persistent_volume_claim" "rke2_storage" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pvc}
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pvc && v.create_pv}
   depends_on = [kubernetes_persistent_volume.rke2_storage, null_resource.rke2_ensure_storage_namespaces]
   provider = kubernetes.rke2
   wait_until_bound = false

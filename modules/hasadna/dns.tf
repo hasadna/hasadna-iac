@@ -1,19 +1,19 @@
 # comments in brackets are the argo app that use that DNS record
 
-# resource "cloudflare_record" "infra" {
-#   for_each = toset([
+resource "cloudflare_record" "infra" {
+  for_each = toset([
 #     # "argo",
 #     # "forum",
 #     # "leafy",
 #     # "open-pension-ng",
 #     # "open-law-archive",
 #     # "*.k8s",
-#   ])
-#   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
-#   name    = each.value
-#   value   = values(cloudflare_record.ingress)[0].hostname
-#   type    = "CNAME"
-# }
+  ])
+  zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
+  name    = each.value
+  value   = values(cloudflare_record.ingress)[0].hostname
+  type    = "CNAME"
+}
 
 resource "cloudflare_record" "rke2_ingress_cnames" {
   for_each = toset([
