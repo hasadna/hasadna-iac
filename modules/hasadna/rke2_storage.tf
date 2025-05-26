@@ -27,6 +27,9 @@ locals {
       labelstudio = {
         pvc_only_ref_nfs_path = "/nfs-client-provisioner/default-hasadna-ls-pvc-pvc-2bddbca1-c952-42a6-86c8-13a702303479"
       }
+      labelstudio-postgres  = {
+        pvc_only_ref_nfs_path = "/export/nfs-client-provisioner/default-data-hasadna-postgresql-0-pvc-ece037c0-79d8-4e15-ad3a-45a8bc05a962"
+      }
     }
     oknesset = {
       data = {
