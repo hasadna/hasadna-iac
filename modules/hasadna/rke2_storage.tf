@@ -51,7 +51,7 @@ locals {
       pipelines = {
         node = "worker2"
         # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/pipelines/ /mnt/storage/budgetkey/pipelines/
-        # in progress
+        # done
       }
       elasticsearch = {
         node = "worker2"
@@ -69,7 +69,7 @@ locals {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/data/
-        # in progress
+        # done
       }
       nginx = {
         pvc_only_ref_existing = "data"
@@ -89,6 +89,7 @@ locals {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
+        # in progress
       }
       gtfs-nginx = {
         pvc_only_ref_existing = "gtfs"
@@ -101,7 +102,7 @@ locals {
       data = {
         node = "worker1"
         create_pv = false
-        # rsync -az --delete --checksum 172.16.0.9:/srm/etl-production/ /mnt/storage/srm-etl-production/data/
+        # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-production/ /mnt/storage/srm-etl-production/data/
       }
       minio = {
         pvc_only_ref_existing = "data"
@@ -120,7 +121,8 @@ locals {
       data = {
         node = "worker2"
         create_pv = false
-        # rsync -az --delete --checksum 172.16.0.9:/srm/etl-staging/ /mnt/storage/srm-etl-staging/data/
+        # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-staging/ /mnt/storage/srm-etl-staging/data/
+        # in progress
       }
       minio = {
         pvc_only_ref_existing = "data"
