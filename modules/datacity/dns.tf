@@ -15,18 +15,18 @@ resource "cloudflare_record" "ckan" {
   }
 }
 
-resource "cloudflare_record" "rke2" {
-  for_each = toset([
-    "app",
-    "geocode",
-    "tabula",
-    "api",
-    "ckan-dgp",
-    "mapali",
-    "baserow",
-  ])
-  zone_id = data.cloudflare_zone.datacity.zone_id
-  name    = each.value
-  value   = "rke2-ingress.hasadna.org.il"
-  type    = "CNAME"
-}
+# resource "cloudflare_record" "rke2" {
+#   for_each = toset([
+#     "app",
+#     "geocode",
+#     "tabula",
+#     "api",
+#     "ckan-dgp",
+#     "mapali",
+#     "baserow",
+#   ])
+#   zone_id = data.cloudflare_zone.datacity.zone_id
+#   name    = each.value
+#   value   = "rke2-ingress.hasadna.org.il"
+#   type    = "CNAME"
+# }

@@ -89,7 +89,7 @@ locals {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
-        # in progress
+        # done
       }
       gtfs-nginx = {
         pvc_only_ref_existing = "gtfs"

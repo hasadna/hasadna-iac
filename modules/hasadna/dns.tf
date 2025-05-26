@@ -2,12 +2,12 @@
 
 resource "cloudflare_record" "infra" {
   for_each = toset([
-#     # "argo",
-#     # "forum",
-#     # "leafy",
-#     # "open-pension-ng",
-#     # "open-law-archive",
-#     # "*.k8s",
+    "argo",
+    "forum",
+    "leafy",
+    "open-pension-ng",
+    "open-law-archive",
+    "*.k8s",
   ])
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
   name    = each.value
@@ -18,18 +18,18 @@ resource "cloudflare_record" "infra" {
 resource "cloudflare_record" "rke2_ingress_cnames" {
   for_each = toset([
     "dear-diary",
-    "*.k8s",   # argo-events-github (argoevents), label-studio (hasadna)
-    "argo",  # (argoworkflows)
-    "betaknesset-elasticsearch",  # (betaknesset)
-    "betaknesset-kibana",  # (betaknesset)
-    "forum",  # (forum)
-    "leafy",  # (leafy)
-    "open-pension-ng",  # (openpension)
-    "open-law-archive",  # (openlaw)
-    "redash",  # (redash)
-    "resourcesaverproxy",  # (resourcesaverproxy)
-    "vault",  # (vault)
-    "argocd",  # (argocd)
+    # "*.k8s",   # argo-events-github (argoevents), label-studio (hasadna)
+    # "argo",  # (argoworkflows)
+    # "betaknesset-elasticsearch",  # (betaknesset)
+    # "betaknesset-kibana",  # (betaknesset)
+    # "forum",  # (forum)
+    # "leafy",  # (leafy)
+    # "open-pension-ng",  # (openpension)
+    # "open-law-archive",  # (openlaw)
+    # "redash",  # (redash)
+    # "resourcesaverproxy",  # (resourcesaverproxy)
+    # already created manually -> # "vault",  # (vault)
+    # "argocd",  # (argocd)
   ])
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
   name    = each.value
@@ -66,7 +66,8 @@ resource "cloudflare_record" "extra" {
   }
   zone_id = each.value["zone_id"]
   name    = each.value["name"]
-  value   = values(cloudflare_record.rke2_ingress)[0].hostname
+  # value   = values(cloudflare_record.rke2_ingress)[0].hostname
+  value   = values(cloudflare_record.ingress)[0].hostname
   type = "CNAME"
   proxied = true
 }
