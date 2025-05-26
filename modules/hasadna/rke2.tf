@@ -18,6 +18,14 @@ locals {
       ingress = true
       storage = "/dev/sdb1"
     }
+    worker2 = {
+      type = "worker"
+      cpu_cores = 24
+      ram_mb = 65536
+      disk_sizes_gb = [100, 500]
+      ingress = true
+      storage = "/dev/sdb1"
+    }
   }
 }
 

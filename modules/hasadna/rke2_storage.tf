@@ -29,7 +29,7 @@ locals {
       data = {
         node = "worker1"
         create_pv = false
-        # old nfs path: /mnt/nfs/mnt/sdb3/srv/default/oknesset/pipelines/data/oknesset-nfs-gcepd/
+        # rsync -az --delete --checksum 172.16.0.9:/export/mnt/sdb3/srv/default/oknesset/pipelines/data/oknesset-nfs-gcepd/ /mnt/storage/oknesset/data/
       }
       pipelines = {
         pvc_only_ref_existing = "data"
@@ -44,21 +44,26 @@ locals {
     budgetkey = {
       postgres = {
         node = "worker1"
+        # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/postgres/ /mnt/storage/budgetkey/postgres/
       }
       pipelines = {
         node = "worker2"
+        # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/pipelines/ /mnt/storage/budgetkey/pipelines/
       }
       elasticsearch = {
         node = "worker2"
+        # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/elasticsearch8/ /mnt/storage/budgetkey/elasticsearch/
       }
     }
     odata = {
       datastore-db = {
         node = "worker2"
+        # rsync -az --delete --checksum 172.16.0.9:/export/odata/datastore-db-postgresql-data/ /mnt/storage/odata/datastore-db/
       }
       data = {
         node = "worker2"
         create_pv = false
+        # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/data/
       }
       nginx = {
         pvc_only_ref_existing = "data"
@@ -77,6 +82,7 @@ locals {
       gtfs = {
         node = "worker2"
         create_pv = false
+        # rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
       }
       gtfs-nginx = {
         pvc_only_ref_existing = "gtfs"
