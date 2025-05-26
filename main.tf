@@ -12,7 +12,7 @@ terraform {
     }
     kamatera = {
       source  = "Kamatera/kamatera"
-      version = "0.8.7"
+      version = "0.8.15"
     }
     cloudflare = {
       source = "cloudflare/cloudflare"
