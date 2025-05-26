@@ -3,7 +3,7 @@
 resource "cloudflare_record" "infra" {
   for_each = toset([
     "argo",
-    "forum",
+    # "forum",
     "leafy",
     "open-pension-ng",
     "open-law-archive",
@@ -19,10 +19,11 @@ resource "cloudflare_record" "rke2_ingress_cnames" {
   for_each = toset([
     "dear-diary",
     # "*.k8s",   # argo-events-github (argoevents), label-studio (hasadna)
+    "label-studio.k8s",
     # "argo",  # (argoworkflows)
     # "betaknesset-elasticsearch",  # (betaknesset)
     # "betaknesset-kibana",  # (betaknesset)
-    # "forum",  # (forum)
+    "forum",  # (forum)
     # "leafy",  # (leafy)
     # "open-pension-ng",  # (openpension)
     # "open-law-archive",  # (openlaw)
@@ -66,8 +67,8 @@ resource "cloudflare_record" "extra" {
   }
   zone_id = each.value["zone_id"]
   name    = each.value["name"]
-  # value   = values(cloudflare_record.rke2_ingress)[0].hostname
-  value   = values(cloudflare_record.ingress)[0].hostname
+  value   = values(cloudflare_record.rke2_ingress)[0].hostname
+  # value   = values(cloudflare_record.ingress)[0].hostname
   type = "CNAME"
   proxied = true
 }

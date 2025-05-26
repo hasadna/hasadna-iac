@@ -24,6 +24,9 @@ locals {
       terraformstatedb = {
         node = "worker1"
       }
+      labelstudio = {
+        pvc_only_ref_nfs_path = "/nfs-client-provisioner/default-hasadna-ls-pvc-pvc-2bddbca1-c952-42a6-86c8-13a702303479"
+      }
     }
     oknesset = {
       data = {
@@ -138,6 +141,17 @@ locals {
         pv_subpath = "/elasticsearch"
       }
     }
+    forum = {
+      discourse = {
+        pvc_only_ref_nfs_path = "/nfs-client-provisioner/forum-forum-discourse-pvc-6965541d-4753-42ba-81bf-9d3184a8272f"
+      }
+      postgres = {
+        pvc_only_ref_nfs_path = "/nfs-client-provisioner/forum-data-forum-postgresql-0-pvc-a8c93ad1-2872-4528-a50f-6d7393bcd36d"
+      }
+      redis = {
+        pvc_only_ref_nfs_path = "/nfs-client-provisioner/forum-redis-data-forum-redis-master-0-pvc-f9279b40-54d0-4651-a363-b6788d98c772"
+      }
+    }
   }
   rke2_storage_flat = {
     for s in flatten(
@@ -152,6 +166,7 @@ locals {
             pvc_only_ref_existing = lookup(storage, "pvc_only_ref_existing", false)
             pv_subpath = lookup(storage, "pv_subpath", "")
             counter = lookup(storage, "counter", 0)
+            pvc_only_ref_nfs_path = lookup(storage, "pvc_only_ref_nfs_path", false)
           }
         ]
       ]
@@ -228,7 +243,7 @@ resource "kubernetes_storage_class" "rke2_local_storage" {
 }
 
 resource "kubernetes_persistent_volume" "rke2_storage" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pv}
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pv && v.pvc_only_ref_nfs_path == false}
   depends_on = [null_resource.rke2_kubeconfig, null_resource.rke2_storage]
   provider = kubernetes.rke2
   metadata {
@@ -263,9 +278,35 @@ resource "kubernetes_persistent_volume" "rke2_storage" {
   }
 }
 
+resource "kubernetes_persistent_volume" "rke2_storage_ref_nfs" {
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pv && v.pvc_only_ref_nfs_path != false}
+  depends_on = [null_resource.rke2_kubeconfig, null_resource.rke2_storage]
+  provider = kubernetes.rke2
+  metadata {
+    name = "${each.value.namespace}-${each.value.name}"
+    labels = {
+      "app.kubernetes.io/name" = "${each.value.namespace}-${each.value.name}"
+      "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
+    }
+  }
+  spec {
+    storage_class_name = kubernetes_storage_class.rke2_local_storage.metadata[0].name
+    capacity = {
+      storage = "500Gi"
+    }
+    access_modes = ["ReadWriteMany"]
+    persistent_volume_source {
+      nfs {
+        path   = each.value.pvc_only_ref_nfs_path
+        server = kamatera_server.hasadna_nfs2.private_ips[0]
+      }
+    }
+  }
+}
+
 resource "kubernetes_persistent_volume_claim" "rke2_storage" {
   for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pvc && v.create_pv}
-  depends_on = [kubernetes_persistent_volume.rke2_storage, null_resource.rke2_ensure_storage_namespaces]
+  depends_on = [kubernetes_persistent_volume.rke2_storage, null_resource.rke2_ensure_storage_namespaces, kubernetes_persistent_volume.rke2_storage_ref_nfs]
   provider = kubernetes.rke2
   wait_until_bound = false
   metadata {
