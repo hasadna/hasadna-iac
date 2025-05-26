@@ -103,6 +103,7 @@ locals {
         node = "worker1"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-production/ /mnt/storage/srm-etl-production/data/
+        # done
       }
       minio = {
         pvc_only_ref_existing = "data"
@@ -122,7 +123,7 @@ locals {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-staging/ /mnt/storage/srm-etl-staging/data/
-        # in progress
+        # done
       }
       minio = {
         pvc_only_ref_existing = "data"
