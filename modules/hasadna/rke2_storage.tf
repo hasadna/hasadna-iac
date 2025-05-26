@@ -30,6 +30,7 @@ locals {
         node = "worker1"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/mnt/sdb3/srv/default/oknesset/pipelines/data/oknesset-nfs-gcepd/ /mnt/storage/oknesset/data/
+        # done
       }
       pipelines = {
         pvc_only_ref_existing = "data"
@@ -45,25 +46,30 @@ locals {
       postgres = {
         node = "worker1"
         # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/postgres/ /mnt/storage/budgetkey/postgres/
+        # done
       }
       pipelines = {
         node = "worker2"
         # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/pipelines/ /mnt/storage/budgetkey/pipelines/
+        # in progress
       }
       elasticsearch = {
         node = "worker2"
         # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/elasticsearch8/ /mnt/storage/budgetkey/elasticsearch/
+        # done
       }
     }
     odata = {
       datastore-db = {
         node = "worker2"
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/datastore-db-postgresql-data/ /mnt/storage/odata/datastore-db/
+        # done
       }
       data = {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/data/
+        # in progress
       }
       nginx = {
         pvc_only_ref_existing = "data"
@@ -91,6 +97,44 @@ locals {
         pvc_only_ref_existing = "gtfs"
       }
     }
+    srm-etl-production = {
+      data = {
+        node = "worker1"
+        create_pv = false
+        # rsync -az --delete --checksum 172.16.0.9:/srm/etl-production/ /mnt/storage/srm-etl-production/data/
+      }
+      minio = {
+        pvc_only_ref_existing = "data"
+        pv_subpath = "/minio"
+      }
+      db = {
+        pvc_only_ref_existing = "data"
+        pv_subpath = "/db"
+      }
+      elasticsearch = {
+        pvc_only_ref_existing = "data"
+        pv_subpath = "/elasticsearch"
+      }
+    }
+    srm-etl-staging = {
+      data = {
+        node = "worker2"
+        create_pv = false
+        # rsync -az --delete --checksum 172.16.0.9:/srm/etl-staging/ /mnt/storage/srm-etl-staging/data/
+      }
+      minio = {
+        pvc_only_ref_existing = "data"
+        pv_subpath = "/minio"
+      }
+      db = {
+        pvc_only_ref_existing = "data"
+        pv_subpath = "/db"
+      }
+      elasticsearch = {
+        pvc_only_ref_existing = "data"
+        pv_subpath = "/elasticsearch"
+      }
+    }
   }
   rke2_storage_flat = {
     for s in flatten(
@@ -103,6 +147,8 @@ locals {
             create_pv = lookup(storage, "create_pv", true)
             create_pvc = lookup(storage, "create_pvc", true)
             pvc_only_ref_existing = lookup(storage, "pvc_only_ref_existing", false)
+            pv_subpath = lookup(storage, "pv_subpath", "")
+            counter = lookup(storage, "counter", 0)
           }
         ]
       ]
@@ -138,7 +184,7 @@ resource "null_resource" "rke2_storage" {
   for_each = {for k, v in local.rke2_storage_flat : k => v if v.node != false}
   depends_on = [null_resource.rke2_mount_workers_storage]
   triggers = {
-    counter = lookup(each.value, "counter", 0)
+    counter = each.value.counter
     command = <<-EOF
       ssh hasadna-rke2-${each.value.node} "mkdir -p /mnt/storage/${each.value.namespace}/${each.value.name}"
     EOF
@@ -208,7 +254,7 @@ resource "kubernetes_persistent_volume" "rke2_storage" {
     }
     persistent_volume_source {
       local {
-        path = "/mnt/storage/${each.value.namespace}/${each.value.pvc_only_ref_existing == false ? each.value.name : each.value.pvc_only_ref_existing}"
+        path = "/mnt/storage/${each.value.namespace}/${each.value.pvc_only_ref_existing == false ? each.value.name : each.value.pvc_only_ref_existing}${each.value.pv_subpath}"
       }
     }
   }
