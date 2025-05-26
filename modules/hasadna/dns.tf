@@ -4,9 +4,9 @@ resource "cloudflare_record" "infra" {
   for_each = toset([
     "argo",
     # "forum",
-    "leafy",
-    "open-pension-ng",
-    "open-law-archive",
+    # "leafy",
+    # "open-pension-ng",
+    # "open-law-archive",
     "*.k8s",
   ])
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
@@ -24,11 +24,11 @@ resource "cloudflare_record" "rke2_ingress_cnames" {
     # "betaknesset-elasticsearch",  # (betaknesset)
     # "betaknesset-kibana",  # (betaknesset)
     "forum",  # (forum)
-    # "leafy",  # (leafy)
-    # "open-pension-ng",  # (openpension)
-    # "open-law-archive",  # (openlaw)
-    # "redash",  # (redash)
-    # "resourcesaverproxy",  # (resourcesaverproxy)
+    "leafy",  # (leafy)
+    "open-pension-ng",  # (openpension)
+    "open-law-archive",  # (openlaw)
+    "redash",  # (redash)
+    "resourcesaverproxy",  # (resourcesaverproxy)
     # already created manually -> # "vault",  # (vault)
     # "argocd",  # (argocd)
   ])
