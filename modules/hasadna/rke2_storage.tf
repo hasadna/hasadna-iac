@@ -1,7 +1,22 @@
 locals {
   rke2_storage = {
     # namespace = {
-    #   pvc_name = {
+    #   name = {
+    #
+    #     node: create local storage on this node, if set to "nfs", it will use the central NFS server
+    #
+    #     path: if set, will use this as the suffix for the storage path, otherwise will use the name
+    #     namespace_path: if set, will use this as the prefix for the storage path, otherwise will use the namespace name
+    #
+    #     create_pv: default true, if false, will not create a Persistent Volume for this storage (and also will not create a Persistent Volume Claim)
+    #     create_pvc: default true, if false, will not create a Persistent Volume Claim for this storage
+    #
+    #
+    #     ref_existing: special mode, if set, the value needs to match another storage item from the same namespace
+    #                   this is used for cases where the same storage is shared by multiple workloads
+    #                   so each one can get it's own PV/PVC but all reference the same storage location
+    #
+    #     pv_subpath: if set, will suffix this subpath to the PV storage path, mostly useful in combination with ref_existing
     monitoring = {
       alertmanager = {
         node = "worker1"
@@ -25,10 +40,14 @@ locals {
         node = "worker1"
       }
       labelstudio = {
-        pvc_only_ref_nfs_path = "/nfs-client-provisioner/default-hasadna-ls-pvc-pvc-2bddbca1-c952-42a6-86c8-13a702303479"
+        node = "nfs"
+        namespace_path = "nfs-client-provisioner"
+        path = "default-hasadna-ls-pvc-pvc-2bddbca1-c952-42a6-86c8-13a702303479"
       }
       labelstudio-postgres  = {
-        pvc_only_ref_nfs_path = "/export/nfs-client-provisioner/default-data-hasadna-postgresql-0-pvc-ece037c0-79d8-4e15-ad3a-45a8bc05a962"
+        node = "nfs"
+        namespace_path = "export/nfs-client-provisioner"
+        path = "default-data-hasadna-postgresql-0-pvc-ece037c0-79d8-4e15-ad3a-45a8bc05a962"
       }
     }
     oknesset = {
@@ -37,13 +56,13 @@ locals {
         create_pv = false
       }
       pipelines = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
       }
       nginx = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
       }
       airflow-scheduler = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
       }
     }
     budgetkey = {
@@ -68,16 +87,16 @@ locals {
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/data/
       }
       nginx = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
       }
       pipelines = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
       }
       ckan = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
       }
       ckan-jobs = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
       }
     }
     openbus = {
@@ -87,10 +106,10 @@ locals {
         # rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
       }
       gtfs-nginx = {
-        pvc_only_ref_existing = "gtfs"
+        ref_existing = "gtfs"
       }
       airflow-scheduler = {
-        pvc_only_ref_existing = "gtfs"
+        ref_existing = "gtfs"
       }
     }
     srm-etl-production = {
@@ -100,15 +119,15 @@ locals {
         # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-production/ /mnt/storage/srm-etl-production/data/
       }
       minio = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
         pv_subpath = "/minio"
       }
       db = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
         pv_subpath = "/db"
       }
       elasticsearch = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
         pv_subpath = "/elasticsearch"
       }
     }
@@ -119,54 +138,43 @@ locals {
         # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-staging/ /mnt/storage/srm-etl-staging/data/
       }
       minio = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
         pv_subpath = "/minio"
       }
       db = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
         pv_subpath = "/db"
       }
       elasticsearch = {
-        pvc_only_ref_existing = "data"
+        ref_existing = "data"
         pv_subpath = "/elasticsearch"
       }
     }
     forum = {
       discourse = {
-        pvc_only_ref_nfs_path = "/nfs-client-provisioner/forum-forum-discourse-pvc-6965541d-4753-42ba-81bf-9d3184a8272f"
+        node = "nfs"
+        namespace_path = "nfs-client-provisioner"
+        path = "forum-forum-discourse-pvc-6965541d-4753-42ba-81bf-9d3184a8272f"
       }
       postgres = {
-        pvc_only_ref_nfs_path = "/nfs-client-provisioner/forum-data-forum-postgresql-0-pvc-a8c93ad1-2872-4528-a50f-6d7393bcd36d"
+        node = "nfs"
+        namespace_path = "nfs-client-provisioner"
+        path = "forum-data-forum-postgresql-0-pvc-a8c93ad1-2872-4528-a50f-6d7393bcd36d"
       }
       redis = {
-        pvc_only_ref_nfs_path = "/nfs-client-provisioner/forum-redis-data-forum-redis-master-0-pvc-f9279b40-54d0-4651-a363-b6788d98c772"
+        node = "nfs"
+        namespace_path = "nfs-client-provisioner"
+        path = "forum-redis-data-forum-redis-master-0-pvc-f9279b40-54d0-4651-a363-b6788d98c772"
       }
     }
     betaknesset = {
       elasticsearch = {
-        pvc_only_ref_nfs_path = "/nfs-client-provisioner/betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff"
+        node = "nfs"
+        namespace_path = "nfs-client-provisioner"
+        path = "betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff"
         create_pvc = false
       }
     }
-  }
-  rke2_storage_flat = {
-    for s in flatten(
-      [
-        for namespace, storages in local.rke2_storage: [
-          for name, storage in storages : {
-            namespace = namespace
-            name = name
-            node = lookup(storage, "node", false)
-            create_pv = lookup(storage, "create_pv", true)
-            create_pvc = lookup(storage, "create_pvc", true)
-            pvc_only_ref_existing = lookup(storage, "pvc_only_ref_existing", false)
-            pv_subpath = lookup(storage, "pv_subpath", "")
-            counter = lookup(storage, "counter", 0)
-            pvc_only_ref_nfs_path = lookup(storage, "pvc_only_ref_nfs_path", false)
-          }
-        ]
-      ]
-    ) : "${s.namespace}_${s.name}" => s
   }
 }
 
@@ -194,13 +202,66 @@ resource "null_resource" "rke2_mount_workers_storage" {
   }
 }
 
+locals {
+  rke2_storage_flat = {
+    for s in flatten(
+      [
+        for namespace, storages in local.rke2_storage: [
+          for name, storage in storages : {
+            namespace = namespace
+            name = name
+            node = lookup(storage, "node", false)
+            create_pv = lookup(storage, "create_pv", true)
+            create_pvc = lookup(storage, "create_pvc", true)
+            ref_existing = lookup(storage, "ref_existing", false)
+            pv_subpath = lookup(storage, "pv_subpath", "")
+            counter = lookup(storage, "counter", 0)
+            namespace_path = lookup(storage, "namespace_path", namespace)
+            path = lookup(storage, "path", name)
+          }
+        ]
+      ]
+    ) : "${s.namespace}_${s.name}" => s
+  }
+
+  # paths to create on each node
+  rke2_storage_local_node_mkdir_paths = {
+    for k, v in local.rke2_storage_flat : k => {
+      counter = v.counter
+      node = v.node
+      mkdir_path = "/mnt/storage/${v.namespace_path}/${v.path}"
+    } if v.ref_existing == false && v.node != "nfs" && v.node != false
+  }
+
+  # Persistent Volumes to create for local storage paths
+  rke2_storage_pv_create_local = {
+    for k, v in local.rke2_storage_flat : k => {
+      counter = v.counter
+      namespace = v.namespace
+      name = v.name
+      node = v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node
+      path = "/mnt/storage/${v.ref_existing == false ? v.namespace_path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].namespace_path}/${v.ref_existing == false ? v.path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].path}${v.pv_subpath}"
+    } if v.create_pv && (v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node) != "nfs"
+  }
+
+  # Persistent Volumes to create for NFS storage paths
+  rke2_storage_pv_create_nfs = {
+    for k, v in local.rke2_storage_flat : k => {
+      counter = v.counter
+      namespace = v.namespace
+      name = v.name
+      path = "/${v.ref_existing == false ? v.namespace_path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].namespace_path}/${v.ref_existing == false ? v.path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].path}${v.pv_subpath}"
+    } if v.create_pv && (v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node) == "nfs"
+  }
+}
+
 resource "null_resource" "rke2_storage" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node != false}
+  for_each = local.rke2_storage_local_node_mkdir_paths
   depends_on = [null_resource.rke2_mount_workers_storage]
   triggers = {
     counter = each.value.counter
     command = <<-EOF
-      ssh hasadna-rke2-${each.value.node} "mkdir -p /mnt/storage/${each.value.namespace}/${each.value.name}"
+      ssh hasadna-rke2-${each.value.node} "mkdir -p ${each.value.mkdir_path}"
     EOF
   }
   provisioner "local-exec" {
@@ -239,7 +300,7 @@ resource "kubernetes_storage_class" "rke2_local_storage" {
 }
 
 resource "kubernetes_persistent_volume" "rke2_storage" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pv && v.pvc_only_ref_nfs_path == false}
+  for_each = local.rke2_storage_pv_create_local
   depends_on = [null_resource.rke2_kubeconfig, null_resource.rke2_storage]
   provider = kubernetes.rke2
   metadata {
@@ -261,21 +322,21 @@ resource "kubernetes_persistent_volume" "rke2_storage" {
           match_expressions {
             key      = "kubernetes.io/hostname"
             operator = "In"
-            values = [each.value.pvc_only_ref_existing == false ? each.value.node : local.rke2_storage[each.value.namespace][each.value.pvc_only_ref_existing].node]
+            values = [each.value.node]
           }
         }
       }
     }
     persistent_volume_source {
       local {
-        path = "/mnt/storage/${each.value.namespace}/${each.value.pvc_only_ref_existing == false ? each.value.name : each.value.pvc_only_ref_existing}${each.value.pv_subpath}"
+        path = each.value.path
       }
     }
   }
 }
 
 resource "kubernetes_persistent_volume" "rke2_storage_ref_nfs" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pv && v.pvc_only_ref_nfs_path != false}
+  for_each = local.rke2_storage_pv_create_nfs
   depends_on = [null_resource.rke2_kubeconfig, null_resource.rke2_storage]
   provider = kubernetes.rke2
   metadata {
@@ -293,7 +354,7 @@ resource "kubernetes_persistent_volume" "rke2_storage_ref_nfs" {
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       nfs {
-        path   = each.value.pvc_only_ref_nfs_path
+        path   = each.value.path
         server = kamatera_server.hasadna_nfs2.private_ips[0]
       }
     }
