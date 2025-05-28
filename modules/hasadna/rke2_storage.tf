@@ -35,8 +35,6 @@ locals {
       data = {
         node = "worker1"
         create_pv = false
-        # rsync -az --delete --checksum 172.16.0.9:/export/mnt/sdb3/srv/default/oknesset/pipelines/data/oknesset-nfs-gcepd/ /mnt/storage/oknesset/data/
-        # done
       }
       pipelines = {
         pvc_only_ref_existing = "data"
@@ -51,31 +49,23 @@ locals {
     budgetkey = {
       postgres = {
         node = "worker1"
-        # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/postgres/ /mnt/storage/budgetkey/postgres/
-        # done
       }
       pipelines = {
         node = "worker2"
-        # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/pipelines/ /mnt/storage/budgetkey/pipelines/
-        # done
       }
       elasticsearch = {
         node = "worker2"
-        # rsync -az --delete --checksum 172.16.0.9:/export/budgetkey/elasticsearch8/ /mnt/storage/budgetkey/elasticsearch/
-        # done
       }
     }
     odata = {
       datastore-db = {
         node = "worker2"
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/datastore-db-postgresql-data/ /mnt/storage/odata/datastore-db/
-        # done
       }
       data = {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/data/
-        # done
       }
       nginx = {
         pvc_only_ref_existing = "data"
@@ -95,7 +85,6 @@ locals {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
-        # done
       }
       gtfs-nginx = {
         pvc_only_ref_existing = "gtfs"
@@ -109,7 +98,6 @@ locals {
         node = "worker1"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-production/ /mnt/storage/srm-etl-production/data/
-        # done
       }
       minio = {
         pvc_only_ref_existing = "data"
@@ -129,7 +117,6 @@ locals {
         node = "worker2"
         create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-staging/ /mnt/storage/srm-etl-staging/data/
-        # done
       }
       minio = {
         pvc_only_ref_existing = "data"
@@ -153,6 +140,12 @@ locals {
       }
       redis = {
         pvc_only_ref_nfs_path = "/nfs-client-provisioner/forum-redis-data-forum-redis-master-0-pvc-f9279b40-54d0-4651-a363-b6788d98c772"
+      }
+    }
+    betaknesset = {
+      elasticsearch = {
+        pvc_only_ref_nfs_path = "/nfs-client-provisioner/betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff"
+        create_pvc = false
       }
     }
   }

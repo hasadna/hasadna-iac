@@ -20,9 +20,10 @@ resource "cloudflare_record" "rke2_ingress_cnames" {
     "dear-diary",
     # "*.k8s",   # argo-events-github (argoevents), label-studio (hasadna)
     "label-studio.k8s",
+    "argo-events-github.k8s",
     # "argo",  # (argoworkflows)
-    # "betaknesset-elasticsearch",  # (betaknesset)
-    # "betaknesset-kibana",  # (betaknesset)
+    "betaknesset-elasticsearch",  # (betaknesset)
+    "betaknesset-kibana",  # (betaknesset)
     "forum",  # (forum)
     "leafy",  # (leafy)
     "open-pension-ng",  # (openpension)

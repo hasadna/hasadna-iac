@@ -15,6 +15,9 @@ terraform {
     null = {
       source = "hashicorp/null"
     }
+    aws = {
+      source  = "hashicorp/aws"
+    }
   }
 }
 

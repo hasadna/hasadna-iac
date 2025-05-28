@@ -9,6 +9,7 @@ Prerequisites:
 * Python3 + [uv](https://pypi.org/project/uv/)
 * [vault binary](https://www.vaultproject.io/downloads)
 * Gcloud CLI
+* Docker
 
 Create venv and install dependencies
 
