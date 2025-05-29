@@ -64,6 +64,18 @@ locals {
       airflow-scheduler = {
         ref_existing = "data"
       }
+      airflow-db = {
+        node = "nfs"
+        create_pv = false
+      }
+      airflow-home = {
+        node = "nfs"
+        create_pv = false
+      }
+      site-db = {
+        node = "nfs"
+        create_pv = false
+      }
     }
     budgetkey = {
       postgres = {
@@ -75,28 +87,69 @@ locals {
       elasticsearch = {
         node = "worker2"
       }
+      api = {
+        node = "nfs"
+        create_pv = false
+      }
+      data-input-db = {
+        node = "nfs"
+        create_pv = false
+      }
+      elasticsearch-certs = {
+        node = "nfs"
+        create_pv = false
+      }
+      kibana-data = {
+        node = "nfs"
+        create_pv = false
+      }
     }
     odata = {
       datastore-db = {
         node = "worker2"
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/datastore-db-postgresql-data/ /mnt/storage/odata/datastore-db/
       }
-      data = {
+      ckan = {
         node = "worker2"
         create_pv = false
-        # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/data/
+        # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/ckan/
       }
       nginx = {
-        ref_existing = "data"
+        ref_existing = "ckan"
       }
       pipelines = {
-        ref_existing = "data"
-      }
-      ckan = {
-        ref_existing = "data"
+        ref_existing = "ckan"
       }
       ckan-jobs = {
-        ref_existing = "data"
+        ref_existing = "ckan"
+      }
+      ckan-jobs-db = {
+        node = "nfs"
+        create_pv = false
+      }
+      data = {
+        node = "nfs"
+        create_pv = false
+      }
+      pipelines = {
+        node = "nfs"
+        create_pv = false
+      }
+      pipelines-redis = {
+        node = "nfs"
+        create_pv = false
+      }
+      postgresql-data = {
+        node = "nfs"
+        create_pv = false
+      }
+      solr = {
+        node = "nfs"
+        create_pv = false
+      }
+      storage = {
+        node = "nfs"
+        create_pv = false
       }
     }
     openbus = {
@@ -110,6 +163,22 @@ locals {
       }
       airflow-scheduler = {
         ref_existing = "gtfs"
+      }
+      airflow-db = {
+        node = "nfs"
+        create_pv = false
+      }
+      airflow-home = {
+        node = "nfs"
+        create_pv = false
+      }
+      legacy = {
+        node = "nfs"
+        create_pv = false
+      }
+      siri-requester = {
+        node = "nfs"
+        create_pv = false
       }
     }
     srm-etl-production = {
@@ -171,8 +240,142 @@ locals {
       elasticsearch = {
         node = "nfs"
         namespace_path = "nfs-client-provisioner"
+        # the actual path is archived-betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff
+        # there is a bind mount that puts it in this path
         path = "betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff"
         create_pvc = false
+      }
+      postgres = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    datacity = {
+      baserow = {
+        node = "nfs"
+        create_pv = false
+      }
+      ckan-dgp-db = {
+        node = "nfs"
+        create_pv = false
+      }
+      ckan-dgp-logs = {
+        node = "nfs"
+        create_pv = false
+      }
+      importer = {
+        node = "nfs"
+        create_pv = false
+      }
+      mapali = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    dear-diary = {
+      db = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    israelproxy = {
+      differ = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    leafy = {
+      db = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    migdar = {
+      elasticsearch = {
+        node = "nfs"
+        create_pv = false
+      }
+      internal-search-ui = {
+        node = "nfs"
+        create_pv = false
+      }
+      pipelines = {
+        node = "nfs"
+        create_pv = false
+      }
+      postgres = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    openlaw = {
+      archive_db = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    openpension = {
+      db = {
+        node = "nfs"
+        create_pv = false
+      }
+      ng_db = {
+        node = "nfs"
+        create_pv = false
+      }
+      staging-db = {
+        node = "nfs"
+        create_pv = false
+      }
+      staging-mongodb = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    redash = {
+      postgres = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    reportit = {
+      botkit = {
+        node = "nfs"
+        create_pv = false
+      }
+      postgres = {
+        node = "nfs"
+        create_pv = false
+      }
+      strapi = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    resourcesaver = {
+      proxy = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    treebase = {
+      db = {
+        node = "nfs"
+        create_pv = false
+      }
+      importer = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
+    wordpress = {
+      datacity = {
+        node = "nfs"
+        create_pv = false
+      }
+      db = {
+        node = "nfs"
+        create_pv = false
       }
     }
   }
@@ -224,6 +427,14 @@ locals {
     ) : "${s.namespace}_${s.name}" => s
   }
 
+  # paths to backup per node, used for kopia backups as defined in rke2_backups.tf
+  rke2_storage_backup_paths = {
+    for k, v in local.rke2_storage_flat : k => {
+      path = "${v.node == "nfs" ? "/export" : "/mnt/storage"}/${v.namespace_path}/${v.path}"
+      server = v.node == "nfs" ? "hasadna-nfs1" : "hasadna-rke2-${v.node}"
+    } if v.ref_existing == false
+  }
+
   # paths to create on each node
   rke2_storage_local_node_mkdir_paths = {
     for k, v in local.rke2_storage_flat : k => {
@@ -231,6 +442,14 @@ locals {
       node = v.node
       mkdir_path = "/mnt/storage/${v.namespace_path}/${v.path}"
     } if v.ref_existing == false && v.node != "nfs" && v.node != false
+  }
+
+  # paths to create on the nfs server
+  rke2_storage_nfs_mkdir_paths = {
+    for k, v in local.rke2_storage_flat : k => {
+      counter = v.counter
+      mkdir_path = "/export/${v.namespace_path}/${v.path}"
+    } if v.ref_existing == false && v.node == "nfs"
   }
 
   # Persistent Volumes to create for local storage paths
@@ -262,6 +481,27 @@ resource "null_resource" "rke2_storage" {
     counter = each.value.counter
     command = <<-EOF
       ssh hasadna-rke2-${each.value.node} "mkdir -p ${each.value.mkdir_path}"
+    EOF
+  }
+  provisioner "local-exec" {
+    command = self.triggers.command
+  }
+}
+
+resource "null_resource" "rke2_storage_init_nfs" {
+  for_each = local.rke2_storage_nfs_mkdir_paths
+  depends_on = [null_resource.rke2_mount_workers_storage]
+  triggers = {
+    counter = each.value.counter
+    command = <<-EOF
+      ssh hasadna-nfs1 "
+        if [ -e ${each.value.mkdir_path} ]; then
+          echo "${each.value.mkdir_path}: already exists"
+        else
+          echo "${each.value.mkdir_path}: creating" &&\
+          mkdir ${each.value.mkdir_path}
+        fi
+      "
     EOF
   }
   provisioner "local-exec" {

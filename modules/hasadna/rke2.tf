@@ -111,8 +111,14 @@ resource "null_resource" "rke2_prepare_nodes" {
   triggers = {
     counter = 1
     command = <<-EOF
-      echo 'vm.max_map_count=262144' > /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'net.ipv4.tcp_retries2=8' >> /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'vm.max_map_count = 262144' > /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'net.ipv4.tcp_retries2 = 8' >> /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'fs.inotify.max_user_instances = 1024' >> /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'fs.inotify.max_user_watches   = 2097152' >> /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'fs.inotify.max_queued_events  = 65536' >> /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'net.core.somaxconn = 65535' >> /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'net.core.netdev_max_backlog = 16384' >> /etc/sysctl.d/99-hasadna.conf &&\
+      echo 'net.ipv4.tcp_max_syn_backlog = 8192' >> /etc/sysctl.d/99-hasadna.conf &&\
       sysctl --system &&\
       apt update && apt install -y nfs-common &&\
       if ! [ -e /root/.ssh/id_rsa ]; then ssh-keygen -t rsa -b 4096 -N '' -f /root/.ssh/id_rsa; fi

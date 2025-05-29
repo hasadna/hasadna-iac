@@ -26,6 +26,10 @@ terraform {
       source  = "hashicorp/vault"
       version = "5.0.0"
     }
+    statuscake = {
+      source = "StatusCakeDev/statuscake"
+      version = "2.2.2"
+    }
   }
 }
 

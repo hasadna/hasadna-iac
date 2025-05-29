@@ -18,6 +18,9 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
     }
+    statuscake = {
+      source = "StatusCakeDev/statuscake"
+    }
   }
 }
 
