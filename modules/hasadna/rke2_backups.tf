@@ -112,6 +112,7 @@ resource "statuscake_heartbeat_check" "rke2_backups" {
   for_each = local.rke2_kopia_backup_servers
   name = "rke2-backups-${each.key}"
   period = 60 * 24 * 2  # if backup doesn't ping this check for 2 days, it will be considered failed
+  contact_groups = ["35660"]  # DevOps contact group
 }
 
 
