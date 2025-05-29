@@ -4,6 +4,10 @@ set -euo pipefail
 
 . "$(dirname "$0")/.kopia.env"
 "$(dirname "$0")/kopia_connect.sh"
+if [ "$(cat .kopia.backup_paths)" == "" ]; then
+  echo "No backup paths specified in .kopia.backup_paths"
+  exit 0
+fi
 if ! kopia snapshot create $(cat "$(dirname "$0")/.kopia.backup_paths"); then
   echo "Kopia snapshot creation failed"
   exit 1

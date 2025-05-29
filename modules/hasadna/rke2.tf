@@ -145,7 +145,7 @@ resource "null_resource" "rke2_install_controlplane1" {
         - 0.0.0.0
         - ${local.rke2_server_private_ip["controlplane1"]}
         - ${local.rke2_server_public_ip["controlplane1"]}
-      etcd-expose-metrics: true
+      etcd-snapshot-retention: 14  # snapshot every 12 hours, total of 1 week
     EOF
     command = <<-EOF
       curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${local.rke2_version} sh - &&\

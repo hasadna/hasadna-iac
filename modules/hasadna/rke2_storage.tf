@@ -7,6 +7,7 @@ locals {
     #
     #     path: if set, will use this as the suffix for the storage path, otherwise will use the name
     #     namespace_path: if set, will use this as the prefix for the storage path, otherwise will use the namespace name
+    #     full_path: if set, will use this as the full path from the server root, ignoring the name and namespace_path
     #
     #     create_pv: default true, if false, will not create a Persistent Volume for this storage (and also will not create a Persistent Volume Claim)
     #     create_pvc: default true, if false, will not create a Persistent Volume Claim for this storage
@@ -48,6 +49,11 @@ locals {
         node = "nfs"
         namespace_path = "export/nfs-client-provisioner"
         path = "default-data-hasadna-postgresql-0-pvc-ece037c0-79d8-4e15-ad3a-45a8bc05a962"
+      }
+      rke2-snapshots = {
+        node = "controlplane1"
+        create_pv = false
+        full_path = "/var/lib/rancher/rke2/server/db/snapshots"
       }
     }
     oknesset = {
@@ -421,6 +427,8 @@ locals {
             counter = lookup(storage, "counter", 0)
             namespace_path = lookup(storage, "namespace_path", namespace)
             path = lookup(storage, "path", name)
+            full_path = lookup(storage, "full_path", "${lookup(storage, "node", false) == "nfs" ? "/export" : "/mnt/storage"}/${lookup(storage, "namespace_path", namespace)}/${lookup(storage, "path", name)}")
+            _base_path = lookup(storage, "node", false) == "nfs" ? "/export" : "/mnt/storage"
           }
         ]
       ]
@@ -430,7 +438,7 @@ locals {
   # paths to backup per node, used for kopia backups as defined in rke2_backups.tf
   rke2_storage_backup_paths = {
     for k, v in local.rke2_storage_flat : k => {
-      path = "${v.node == "nfs" ? "/export" : "/mnt/storage"}/${v.namespace_path}/${v.path}"
+      path = v.full_path
       server = v.node == "nfs" ? "hasadna-nfs1" : "hasadna-rke2-${v.node}"
     } if v.ref_existing == false
   }
@@ -440,7 +448,7 @@ locals {
     for k, v in local.rke2_storage_flat : k => {
       counter = v.counter
       node = v.node
-      mkdir_path = "/mnt/storage/${v.namespace_path}/${v.path}"
+      mkdir_path = v.full_path
     } if v.ref_existing == false && v.node != "nfs" && v.node != false
   }
 
@@ -448,7 +456,7 @@ locals {
   rke2_storage_nfs_mkdir_paths = {
     for k, v in local.rke2_storage_flat : k => {
       counter = v.counter
-      mkdir_path = "/export/${v.namespace_path}/${v.path}"
+      mkdir_path = v.full_path
     } if v.ref_existing == false && v.node == "nfs"
   }
 
@@ -459,7 +467,7 @@ locals {
       namespace = v.namespace
       name = v.name
       node = v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node
-      path = "/mnt/storage/${v.ref_existing == false ? v.namespace_path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].namespace_path}/${v.ref_existing == false ? v.path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].path}${v.pv_subpath}"
+      path = "${v._base_path}/${v.ref_existing == false ? v.namespace_path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].namespace_path}/${v.ref_existing == false ? v.path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].path}${v.pv_subpath}"
     } if v.create_pv && (v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node) != "nfs"
   }
 

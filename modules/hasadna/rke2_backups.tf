@@ -104,17 +104,17 @@ locals {
       [for node_name in keys(kamatera_server.rke2) : "hasadna-rke2-${node_name}"]
     ) : server => {
       backup_paths = join(" ", [for k, v in local.rke2_storage_backup_paths : v.path if v.server == server])
-    } if length([for k, v in local.rke2_storage_backup_paths : v.path if v.server == server]) > 0
+      has_backup_paths = length([for k, v in local.rke2_storage_backup_paths : v.path if v.server == server]) > 0
+    }
   }
 }
 
 resource "statuscake_heartbeat_check" "rke2_backups" {
-  for_each = local.rke2_kopia_backup_servers
+  for_each = {for k, v in local.rke2_kopia_backup_servers : k => v if v.has_backup_paths}
   name = "rke2-backups-${each.key}"
-  period = 60 * 24 * 2  # if backup doesn't ping this check for 2 days, it will be considered failed
+  period = 60 * 60 * 24 * 2  # if backup doesn't ping this check for 2 days, it will be considered failed
   contact_groups = ["35660"]  # DevOps contact group
 }
-
 
 resource "null_resource" "kopia_init_node" {
     for_each = local.rke2_kopia_backup_servers
@@ -147,7 +147,7 @@ resource "null_resource" "kopia_init_node" {
           export KOPIA_CHECK_FOR_UPDATES=\"false\"
           BUCKET=\"${aws_s3_bucket.hasadna_kopia_backups.bucket}\"
           REGION=\"${aws_s3_bucket.hasadna_kopia_backups.region}\"
-          STATUSCAKE_HEATBEAT_URL=\"${statuscake_heartbeat_check.rke2_backups[each.key].check_url}\"
+          STATUSCAKE_HEATBEAT_URL=\"${each.value.has_backup_paths ? statuscake_heartbeat_check.rke2_backups[each.key].check_url : ""}\"
           ' > /root/.kopia.env
           echo ${each.value.backup_paths} > /root/.kopia.backup_paths
           chmod +x /root/kopia_connect.sh /root/backups_cronjob.sh
