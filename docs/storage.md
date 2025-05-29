@@ -1,29 +1,33 @@
 # Storage
 
-We have 2 types of storage for the Kubernetes cluster:
+We have 2 types of storage:
 
 * NFS - Stored on a central NFS server, should be used for most workloads
 * Local - Stored in dedicated disk on the worker nodes themselves, only for critical or large storage needs
 
-## NFS
+Storage is defined in `modules/hasadna/rke2_storage.tf` at the top of the file under the `rke2_storage` local.
+See the comments there for a description of the configuration values.
 
-* SSH to the nfs server and create required directory structure under `/export/`
-* use the NFS from hasadna-k8s - see other workloads that use NFS for examples 
+If you add or change values, it will create / modify the storage after terraform apply.
+If you delete items, it will not delete the storage, storage must be deleted manually.
 
-## Local
+The storage configuration is also used for backup which is handled by a cronjob in each server.
+Backups are stored in AWS S3 using Koptic. It stores snapshots with retention periods, see `modules/hasadna/rke2_backup.tf` for more details.
 
-* Storage paths are set in `modules/hasadna/rke2_storage.tf` - see the map at the top of the file
-* Nodes eligible for storage are defined in `modules/hasadna/rke2.tf` - they need to have 2 disks and set storage to the 2nd storage device
+## Using the data in Kubernetes Workloads
 
-## Advanced
+The storage configurations by default create a `PersistentVolume` and a `PersistentVolumeClaim` for each storage item in the relevant namespace.
 
-### Rsyncing from nfs to local
+## Moving data between servers
 
-Run on target worker node:
+If you want to move data from one storage server to another, you can use `rsync` over SSH
+
+Run something like this on the target server:
 
 ```
 cat ~/.ssh/id_rsa.pub
-# copy the output to the NFS server's authorized_keys file
-# rsync over ssh from nfs server to local (important to use the trailing slash on the paths)
+# copy the output to the source server's authorized_keys file
+# rsync over ssh from source server to the current target server (important to use the trailing slash on the paths)
+# following example syncs from nfs server
 rsync -az --delete --checksum 172.16.0.9:/export/SOURCE_PATH/ /mnt/storage/TARGET_PATH/
 ```
