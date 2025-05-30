@@ -36,6 +36,12 @@ locals {
         node = "worker1"
       }
     }
+    argo = {
+      postgres = {
+        node = "nfs"
+        create_pv = false
+      }
+    }
     default = {
       terraformstatedb = {
         node = "worker1"
@@ -507,7 +513,7 @@ resource "null_resource" "rke2_storage_init_nfs" {
           echo "${each.value.mkdir_path}: already exists"
         else
           echo "${each.value.mkdir_path}: creating" &&\
-          mkdir ${each.value.mkdir_path}
+          mkdir -p ${each.value.mkdir_path}
         fi
       "
     EOF
