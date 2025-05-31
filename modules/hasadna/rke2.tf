@@ -255,3 +255,24 @@ resource "kubernetes_node_taint" "rke2_controlplane_criticalonly" {
     effect = "NoExecute"
   }
 }
+
+ephemeral "vault_kv_secret_v2" "rke2_registries" {
+  mount = "/kv"
+  name = "Projects/k8s/rke2-registries"
+}
+
+resource "null_resource" "rke2_registries" {
+  depends_on = [null_resource.rke2_install_controlplane1, null_resource.rke2_install_workers]
+  for_each = local.rke2_servers
+  triggers = {
+    counter = 2
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+    ssh hasadna-rke2-${each.key} "
+      set -euo pipefail
+      echo ${base64encode(ephemeral.vault_kv_secret_v2.rke2_registries.data["registries.yaml"])} | base64 -d > /etc/rancher/rke2/registries.yaml
+    "
+    EOF
+  }
+}
