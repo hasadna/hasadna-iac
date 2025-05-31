@@ -87,7 +87,9 @@ resource "null_resource" "kopia_init_repo" {
           --keep-weekly 4 \
           --keep-daily 7 \
           --keep-hourly 48 \
-          --keep-latest 10
+          --keep-latest 10 \
+          --max-parallel-snapshots 1 \
+          --max-parallel-file-reads 1
       '
     EOT
   }
