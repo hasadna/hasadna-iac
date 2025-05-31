@@ -2,7 +2,7 @@
 
 resource "cloudflare_record" "infra" {
   for_each = toset([
-    "argo",
+    # "argo",
     # "forum",
     # "leafy",
     # "open-pension-ng",
@@ -21,7 +21,7 @@ resource "cloudflare_record" "rke2_ingress_cnames" {
     # "*.k8s",   # argo-events-github (argoevents), label-studio (hasadna)
     "label-studio.k8s",
     "argo-events-github.k8s",
-    # "argo",  # (argoworkflows)
+    "argo",  # (argoworkflows)
     "betaknesset-elasticsearch",  # (betaknesset)
     "betaknesset-kibana",  # (betaknesset)
     "forum",  # (forum)

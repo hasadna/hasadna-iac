@@ -111,17 +111,28 @@ resource "null_resource" "rke2_prepare_nodes" {
   triggers = {
     counter = 1
     command = <<-EOF
-      echo 'vm.max_map_count = 262144' > /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'net.ipv4.tcp_retries2 = 8' >> /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'fs.inotify.max_user_instances = 1024' >> /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'fs.inotify.max_user_watches   = 2097152' >> /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'fs.inotify.max_queued_events  = 65536' >> /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'net.core.somaxconn = 65535' >> /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'net.core.netdev_max_backlog = 16384' >> /etc/sysctl.d/99-hasadna.conf &&\
-      echo 'net.ipv4.tcp_max_syn_backlog = 8192' >> /etc/sysctl.d/99-hasadna.conf &&\
-      sysctl --system &&\
-      apt update && apt install -y nfs-common &&\
+      set -euo pipefail
+      echo 'vm.max_map_count = 262144' > /etc/sysctl.d/99-hasadna.conf
+      echo 'net.ipv4.tcp_retries2 = 8' >> /etc/sysctl.d/99-hasadna.conf
+      echo 'fs.inotify.max_user_instances = 1024' >> /etc/sysctl.d/99-hasadna.conf
+      echo 'fs.inotify.max_user_watches   = 2097152' >> /etc/sysctl.d/99-hasadna.conf
+      echo 'fs.inotify.max_queued_events  = 65536' >> /etc/sysctl.d/99-hasadna.conf
+      echo 'net.core.somaxconn = 65535' >> /etc/sysctl.d/99-hasadna.conf
+      echo 'net.core.netdev_max_backlog = 16384' >> /etc/sysctl.d/99-hasadna.conf
+      echo 'net.ipv4.tcp_max_syn_backlog = 8192' >> /etc/sysctl.d/99-hasadna.conf
+      sysctl --system
+      rm -f /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf
+      systemctl daemon-reload
+      systemctl restart systemd-networkd-wait-online.service
+      apt update && apt install -y nfs-common
       if ! [ -e /root/.ssh/id_rsa ]; then ssh-keygen -t rsa -b 4096 -N '' -f /root/.ssh/id_rsa; fi
+      echo 'export PATH="/var/lib/rancher/rke2/bin/:$PATH"' > /etc/profile.d/00-hasadna.sh
+      echo 'export CRI_CONFIG_FILE=/var/lib/rancher/rke2/agent/etc/crictl.yaml' >> /etc/profile.d/00-hasadna.sh
+      echo 'export CONTAINERD_ADDRESS=/run/k3s/containerd/containerd.sock' >> /etc/profile.d/00-hasadna.sh
+      echo 'export CONTAINERD_NAMESPACE=k8s.io' >> /etc/profile.d/00-hasadna.sh
+      if [ -e /etc/rancher/rke2/rke2.yaml ]; then
+        echo 'export KUBECONFIG="/etc/rancher/rke2/rke2.yaml"' >> /etc/profile.d/00-hasadna.sh
+      fi
     EOF
   }
   provisioner "local-exec" {

@@ -75,12 +75,15 @@ resource "kamatera_server" "hasadna_nfs2" {
 #    -v /:/host \
 #    --net=host \
 #    --restart unless-stopped \
-#	rancher/mirrored-prometheus-node-exporter:v1.2.2 \
+# 	rancher/mirrored-prometheus-node-exporter:v1.2.2 \
 #    --web.listen-address=172.16.0.9:9796 --path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/host --collector.arp \
 #    --collector.bcache --collector.bonding --no-collector.buddyinfo --collector.conntrack --collector.cpu --collector.diskstats \
 #    --no-collector.drbd --collector.edac --collector.entropy --collector.filefd --collector.filesystem --collector.hwmon \
 #    --collector.infiniband --no-collector.interrupts --collector.ipvs --no-collector.ksmd --collector.loadavg --no-collector.logind \
 #    --collector.mdadm --collector.meminfo --no-collector.meminfo_numa --no-collector.mountstats --collector.netdev --collector.netstat \
 #    --collector.nfs --collector.nfsd --no-collector.ntp --no-collector.processes --no-collector.qdisc --no-collector.runit --collector.sockstat \
-#    --collector.stat --no-collector.supervisord --no-collector.systemd --no-collector.tcpstat --collector.textfile --collector.time \
+#    --collector.stat --no-collector.supervisord --collector.systemd --no-collector.tcpstat --collector.textfile --collector.time \
 #    --collector.timex --collector.uname --collector.vmstat --no-collector.wifi --collector.xfs --collector.zfs
+# rm -f /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf
+#      systemctl daemon-reload
+#      systemctl restart systemd-networkd-wait-online.service
