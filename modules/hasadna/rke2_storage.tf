@@ -56,10 +56,18 @@ locals {
         namespace_path = "nfs-client-provisioner"
         path = "default-hasadna-ls-pvc-pvc-2bddbca1-c952-42a6-86c8-13a702303479"
       }
+      labelstudio2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       labelstudio-postgres  = {
         node = "nfs"
         namespace_path = "export/nfs-client-provisioner"
         path = "default-data-hasadna-postgresql-0-pvc-ece037c0-79d8-4e15-ad3a-45a8bc05a962"
+      }
+      labelstudio-postgres2  = {
+        node = "rook"
+        rook_storage_request_gi = 1
       }
       rke2-snapshots = {
         node = "controlplane1"
@@ -85,6 +93,10 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      airflow-db2 = {
+        node = "rook"
+        rook_storage_request_gi = 1
+      }
       airflow-home = {
         node = "nfs"
         create_pv = false
@@ -97,6 +109,10 @@ locals {
       site-db = {
         node = "nfs"
         create_pv = false
+      }
+      site-db2 = {
+        node = "rook"
+        rook_storage_request_gi = 1
       }
     }
     budgetkey = {
@@ -113,17 +129,34 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      api2 = {
+        node = "rook"
+        rook_storage_request_gi = 2
+      }
       data-input-db = {
         node = "nfs"
         create_pv = false
+      }
+      data-input-db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
       elasticsearch-certs = {
         node = "nfs"
         create_pv = false
       }
+      elasticsearch-certs2 = {
+        node = "rook"
+        rook_shared = true
+        rook_storage_request_gi = 1
+      }
       kibana-data = {
         node = "nfs"
         create_pv = false
+      }
+      kibana-data2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     odata = {
@@ -135,9 +168,18 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      pipelines2 = {
+        node = "rook"
+        rook_shared = true
+        rook_storage_request_gi = 1
+      }
       ckan-jobs-db = {
         node = "nfs"
         create_pv = false
+      }
+      ckan-jobs-db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
       datastore-db = {
         node = "worker2"
@@ -147,13 +189,25 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      postgresql-data2 = {
+        node = "rook"
+        rook_storage_request_gi = 10
+      }
       pipelines-redis = {
         node = "nfs"
         create_pv = false
       }
+      pipelines-redis2 = {
+        node = "rook"
+        rook_storage_request_gi = 1
+      }
       solr = {
         node = "nfs"
         create_pv = false
+      }
+      solr2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     openbus = {
@@ -172,17 +226,34 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      airflow-db2 = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
       airflow-home = {
         node = "nfs"
         create_pv = false
+      }
+      airflow-home2 = {
+        node = "rook"
+        rook_shared = true
+        rook_storage_request_gi = 5
       }
       legacy = {
         node = "nfs"
         create_pv = false
       }
+      legacy2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       siri-requester = {
         node = "nfs"
         create_pv = false
+      }
+      siri-requester2 = {
+        node = "rook"
+        rook_storage_request_gi = 20
       }
     }
     srm-etl-production = {
@@ -229,15 +300,27 @@ locals {
         namespace_path = "nfs-client-provisioner"
         path = "forum-forum-discourse-pvc-6965541d-4753-42ba-81bf-9d3184a8272f"
       }
+      discourse2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       postgres = {
         node = "nfs"
         namespace_path = "nfs-client-provisioner"
         path = "forum-data-forum-postgresql-0-pvc-a8c93ad1-2872-4528-a50f-6d7393bcd36d"
       }
+      postgres2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       redis = {
         node = "nfs"
         namespace_path = "nfs-client-provisioner"
         path = "forum-redis-data-forum-redis-master-0-pvc-f9279b40-54d0-4651-a363-b6788d98c772"
+      }
+      redis2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     betaknesset = {
@@ -249,9 +332,17 @@ locals {
         path = "betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff"
         create_pvc = false
       }
+      elasticsearch2 = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
       postgres = {
         node = "nfs"
         create_pv = false
+      }
+      postgres = {
+        node = "rook"
+        rook_storage_request_gi = 20
       }
     }
     datacity = {
@@ -275,11 +366,35 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      baserow2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
+      ckan-dgp-db2 = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
+      ckan-dgp-logs2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
+      importer2 = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
+      mapali2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
     }
     dear-diary = {
       db = {
         node = "nfs"
         create_pv = false
+      }
+      db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     israelproxy = {
@@ -287,11 +402,19 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      differ2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
     }
     leafy = {
       db = {
         node = "nfs"
         create_pv = false
+      }
+      db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     migdar = {
@@ -299,17 +422,33 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      elasticsearch2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       internal-search-ui = {
         node = "nfs"
         create_pv = false
+      }
+      internal-search-ui2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
       pipelines = {
         node = "nfs"
         create_pv = false
       }
+      pipelines2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       postgres = {
         node = "nfs"
         create_pv = false
+      }
+      postgres2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     openlaw = {
@@ -317,23 +456,43 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      archive_db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
     }
     openpension = {
       db = {
         node = "nfs"
         create_pv = false
       }
+      db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       ng_db = {
         node = "nfs"
         create_pv = false
+      }
+      ng_db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
       staging-db = {
         node = "nfs"
         create_pv = false
       }
+      staging-db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       staging-mongodb = {
         node = "nfs"
         create_pv = false
+      }
+      staging-mongodb2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     redash = {
@@ -341,19 +500,35 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      postgres2 = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
     }
     reportit = {
       botkit = {
         node = "nfs"
         create_pv = false
       }
+      botkit2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       postgres = {
         node = "nfs"
         create_pv = false
       }
+      postgres2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       strapi = {
         node = "nfs"
         create_pv = false
+      }
+      strapi2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     resourcesaver = {
@@ -361,15 +536,27 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      proxy2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
     }
     treebase = {
       db = {
         node = "nfs"
         create_pv = false
       }
+      db2 = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
       importer = {
         node = "nfs"
         create_pv = false
+      }
+      importer2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
     wordpress = {
@@ -377,9 +564,17 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      datacity2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
       db = {
         node = "nfs"
         create_pv = false
+      }
+      db2 = {
+        node = "rook"
+        rook_storage_request_gi = 5
       }
     }
   }
