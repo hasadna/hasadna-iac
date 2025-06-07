@@ -69,21 +69,7 @@ resource "kamatera_server" "hasadna_nfs2" {
 #  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 # sudo apt-get update
 # sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-#  docker run -d --name prom-node-exporter \
-#    -v /proc:/host/proc \
-#    -v /sys:/host/sys \
-#    -v /:/host \
-#    --net=host \
-#    --restart unless-stopped \
-# 	rancher/mirrored-prometheus-node-exporter:v1.2.2 \
-#    --web.listen-address=172.16.0.9:9796 --path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/host --collector.arp \
-#    --collector.bcache --collector.bonding --no-collector.buddyinfo --collector.conntrack --collector.cpu --collector.diskstats \
-#    --no-collector.drbd --collector.edac --collector.entropy --collector.filefd --collector.filesystem --collector.hwmon \
-#    --collector.infiniband --no-collector.interrupts --collector.ipvs --no-collector.ksmd --collector.loadavg --no-collector.logind \
-#    --collector.mdadm --collector.meminfo --no-collector.meminfo_numa --no-collector.mountstats --collector.netdev --collector.netstat \
-#    --collector.nfs --collector.nfsd --no-collector.ntp --no-collector.processes --no-collector.qdisc --no-collector.runit --collector.sockstat \
-#    --collector.stat --no-collector.supervisord --collector.systemd --no-collector.tcpstat --collector.textfile --collector.time \
-#    --collector.timex --collector.uname --collector.vmstat --no-collector.wifi --collector.xfs --collector.zfs
+# docker run -d --name prom-node-exporter     -v /proc:/host/proc     -v /sys:/host/sys     -v /:/host  -v /var/run/dbus:/var/run/dbus  --security-opt apparmor=unconfined   --net=host     --restart unless-stopped 	prom/node-exporter:v1.9.1     --web.listen-address=172.16.0.9:9796 --path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/host --collector.arp     --collector.bcache --collector.bonding --no-collector.buddyinfo --collector.conntrack --collector.cpu --collector.diskstats     --no-collector.drbd --collector.edac --collector.entropy --collector.filefd --collector.filesystem --collector.hwmon     --collector.infiniband --collector.interrupts --collector.ipvs --no-collector.ksmd --collector.loadavg --no-collector.logind     --collector.mdadm --collector.meminfo --no-collector.meminfo_numa --collector.mountstats --collector.netdev --collector.netstat     --collector.nfs --collector.nfsd --no-collector.ntp --collector.processes --collector.qdisc --no-collector.runit --collector.sockstat     --collector.stat --no-collector.supervisord --collector.systemd --collector.tcpstat --collector.textfile --collector.time     --collector.timex --collector.uname --collector.vmstat --no-collector.wifi --collector.xfs --collector.zfs --collector.cgroups '--collector.systemd.unit-include=ufw.service|nfs-server.service'
 # rm -f /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf
 #      systemctl daemon-reload
 #      systemctl restart systemd-networkd-wait-online.service

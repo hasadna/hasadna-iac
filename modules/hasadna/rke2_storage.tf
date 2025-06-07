@@ -3,15 +3,20 @@ locals {
     # namespace = {
     #   name = {
     #
-    #     node: create local storage on this node, if set to "nfs", it will use the central NFS server
+    #     node: create local storage on this node
+    #       if set to "nfs" - it will use the central NFS server
+    #       if set to "rook" - it will use the Rook Ceph cluster
+    #           by default it will allow single pod to use the storage, to share storage with multiple pods, set rook_shared: true
+    #           you must set rook_storage_request_gi to specify the requested storage size
     #
     #     path: if set, will use this as the suffix for the storage path, otherwise will use the name
     #     namespace_path: if set, will use this as the prefix for the storage path, otherwise will use the namespace name
     #     full_path: if set, will use this as the full path from the server root, ignoring the name and namespace_path
     #
     #     create_pv: default true, if false, will not create a Persistent Volume for this storage (and also will not create a Persistent Volume Claim)
+    #                 ignored for rook, because it must provision them to allocate the storage
     #     create_pvc: default true, if false, will not create a Persistent Volume Claim for this storage
-    #
+    #                 ignored for rook, because it must provision them to allocate the storage
     #
     #     ref_existing: special mode, if set, the value needs to match another storage item from the same namespace
     #                   this is used for cases where the same storage is shared by multiple workloads
@@ -37,9 +42,9 @@ locals {
       }
     }
     argo = {
-      postgres = {
-        node = "nfs"
-        create_pv = false
+      postgres2 = {
+        node = "rook"
+        rook_storage_request_gi = 10
       }
     }
     default = {
@@ -84,6 +89,11 @@ locals {
         node = "nfs"
         create_pv = false
       }
+      airflow-home2 = {
+        node = "rook"
+        rook_shared = true
+        rook_storage_request_gi = 10
+      }
       site-db = {
         node = "nfs"
         create_pv = false
@@ -117,33 +127,23 @@ locals {
       }
     }
     odata = {
-      datastore-db = {
-        node = "worker2"
-        # rsync -az --delete --checksum 172.16.0.9:/export/odata/datastore-db-postgresql-data/ /mnt/storage/odata/datastore-db/
-      }
       ckan = {
         node = "worker2"
-        create_pv = false
         # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/ckan/
       }
-      nginx = {
-        ref_existing = "ckan"
-      }
       pipelines = {
-        ref_existing = "ckan"
-      }
-      ckan-jobs = {
-        ref_existing = "ckan"
+        node = "nfs"
+        create_pv = false
       }
       ckan-jobs-db = {
         node = "nfs"
         create_pv = false
       }
-      data = {
-        node = "nfs"
-        create_pv = false
+      datastore-db = {
+        node = "worker2"
+        # rsync -az --delete --checksum 172.16.0.9:/export/odata/datastore-db-postgresql-data/ /mnt/storage/odata/datastore-db/
       }
-      pipelines = {
+      postgresql-data = {
         node = "nfs"
         create_pv = false
       }
@@ -151,15 +151,7 @@ locals {
         node = "nfs"
         create_pv = false
       }
-      postgresql-data = {
-        node = "nfs"
-        create_pv = false
-      }
       solr = {
-        node = "nfs"
-        create_pv = false
-      }
-      storage = {
         node = "nfs"
         create_pv = false
       }
@@ -435,6 +427,8 @@ locals {
             path = lookup(storage, "path", name)
             full_path = lookup(storage, "full_path", "${lookup(storage, "node", false) == "nfs" ? "/export" : "/mnt/storage"}/${lookup(storage, "namespace_path", namespace)}/${lookup(storage, "path", name)}")
             _base_path = lookup(storage, "node", false) == "nfs" ? "/export" : "/mnt/storage"
+            rook_shared = lookup(storage, "rook_shared", false)
+            rook_storage_request_gi = lookup(storage, "rook_storage_request_gi", false)
           }
         ]
       ]
@@ -446,7 +440,7 @@ locals {
     for k, v in local.rke2_storage_flat : k => {
       path = v.full_path
       server = v.node == "nfs" ? "hasadna-nfs1" : "hasadna-rke2-${v.node}"
-    } if v.ref_existing == false
+    } if v.ref_existing == false && v.node != "rook"
   }
 
   # paths to create on each node
@@ -455,7 +449,7 @@ locals {
       counter = v.counter
       node = v.node
       mkdir_path = v.full_path
-    } if v.ref_existing == false && v.node != "nfs" && v.node != false
+    } if v.ref_existing == false && v.node != "nfs" && v.node != false && v.node != "rook"
   }
 
   # paths to create on the nfs server
@@ -474,7 +468,7 @@ locals {
       name = v.name
       node = v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node
       path = "${v._base_path}/${v.ref_existing == false ? v.namespace_path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].namespace_path}/${v.ref_existing == false ? v.path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].path}${v.pv_subpath}"
-    } if v.create_pv && (v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node) != "nfs"
+    } if v.create_pv && !contains(["nfs", "rook"], v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node)
   }
 
   # Persistent Volumes to create for NFS storage paths
@@ -616,7 +610,7 @@ resource "kubernetes_persistent_volume" "rke2_storage_ref_nfs" {
 }
 
 resource "kubernetes_persistent_volume_claim" "rke2_storage" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pvc && v.create_pv}
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pvc && v.create_pv && v.node != "rook"}
   depends_on = [kubernetes_persistent_volume.rke2_storage, null_resource.rke2_ensure_storage_namespaces, kubernetes_persistent_volume.rke2_storage_ref_nfs]
   provider = kubernetes.rke2
   wait_until_bound = false
@@ -642,5 +636,53 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage" {
         "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
       }
     }
+  }
+}
+
+resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_block" {
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == false}
+  depends_on = [null_resource.rke2_ensure_storage_namespaces]
+  provider = kubernetes.rke2
+  wait_until_bound = false
+  metadata {
+    name = each.value.name
+    namespace = each.value.namespace
+    labels = {
+      "app.kubernetes.io/name" = "${each.value.namespace}-${each.value.name}"
+      "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
+    }
+  }
+  spec {
+    storage_class_name = "rook-ceph-block"
+    resources {
+      requests = {
+        storage = "${each.value.rook_storage_request_gi}Gi"
+      }
+    }
+    access_modes = ["ReadWriteOnce"]
+  }
+}
+
+resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_shared" {
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == true}
+  depends_on = [null_resource.rke2_ensure_storage_namespaces]
+  provider = kubernetes.rke2
+  wait_until_bound = false
+  metadata {
+    name = each.value.name
+    namespace = each.value.namespace
+    labels = {
+      "app.kubernetes.io/name" = "${each.value.namespace}-${each.value.name}"
+      "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
+    }
+  }
+  spec {
+    storage_class_name = "rook-cephfs-shared"
+    resources {
+      requests = {
+        storage = "${each.value.rook_storage_request_gi}Gi"
+      }
+    }
+    access_modes = ["ReadWriteMany"]
   }
 }

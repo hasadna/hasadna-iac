@@ -10,6 +10,15 @@ locals {
       ingress = false
       storage = false
     }
+    # used for critical non application workloads only
+    critical1 = {
+      type = "critical"
+      cpu_cores = 8
+      ram_mb = 16384
+      disk_sizes_gb = [100, 500]  # the extra disk is used directly by Ceph
+      ingress = false
+      storage = false
+    }
     worker1 = {
       type = "worker"
       cpu_cores = 24
@@ -22,9 +31,17 @@ locals {
       type = "worker"
       cpu_cores = 24
       ram_mb = 65536
-      disk_sizes_gb = [100, 500]
+      disk_sizes_gb = [100, 700]
       ingress = true
       storage = "/dev/sdb1"
+    }
+    worker3 = {
+      type = "worker"
+      cpu_cores = 24
+      ram_mb = 65536
+      disk_sizes_gb = [100]
+      ingress = true
+      storage = false
     }
   }
 }
@@ -183,7 +200,7 @@ resource "null_resource" "rke2_install_controlplane1" {
 
 resource "null_resource" "rke2_install_workers" {
   for_each = {
-    for name, server in local.rke2_servers : name => server if server.type == "worker"
+    for name, server in local.rke2_servers : name => server if server.type == "worker" || server.type == "critical"
   }
   depends_on = [null_resource.rke2_install_controlplane1]
   triggers = {
@@ -248,6 +265,22 @@ resource "kubernetes_node_taint" "rke2_controlplane_criticalonly" {
   provider = kubernetes.rke2
   metadata {
     name = "controlplane1"
+  }
+  taint {
+    key    = "CriticalAddonsOnly"
+    value  = "true"
+    effect = "NoExecute"
+  }
+}
+
+resource "kubernetes_node_taint" "rke2_critical" {
+  depends_on = [null_resource.rke2_kubeconfig]
+  provider = kubernetes.rke2
+  for_each = {
+    for name, server in local.rke2_servers : name => server if server.type == "critical"
+  }
+  metadata {
+      name = each.key
   }
   taint {
     key    = "CriticalAddonsOnly"
