@@ -57,6 +57,7 @@ done
 
 if [ "${DEBUG}" == "" ]; then
   kubectl -n $NAMESPACE logs "rke2-storage-rsyncer-${TARGET_PVC}" --follow
+  sleep 2
   EXITCODE="$(kubectl -n $NAMESPACE get pod "rke2-storage-rsyncer-${TARGET_PVC}" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}')"
   if [ "${EXITCODE}" != "0" ]; then
     echo "Rsync failed with exit code ${EXITCODE}"

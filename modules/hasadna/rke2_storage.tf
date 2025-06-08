@@ -51,19 +51,9 @@ locals {
       terraformstatedb = {
         node = "worker1"
       }
-      labelstudio = {
-        node = "nfs"
-        namespace_path = "nfs-client-provisioner"
-        path = "default-hasadna-ls-pvc-pvc-2bddbca1-c952-42a6-86c8-13a702303479"
-      }
       labelstudio2 = {
         node = "rook"
         rook_storage_request_gi = 5
-      }
-      labelstudio-postgres  = {
-        node = "nfs"
-        namespace_path = "export/nfs-client-provisioner"
-        path = "default-data-hasadna-postgresql-0-pvc-ece037c0-79d8-4e15-ad3a-45a8bc05a962"
       }
       labelstudio-postgres2  = {
         node = "rook"
@@ -89,26 +79,14 @@ locals {
       airflow-scheduler = {
         ref_existing = "data"
       }
-      airflow-db = {
-        node = "nfs"
-        create_pv = false
-      }
       airflow-db2 = {
         node = "rook"
         rook_storage_request_gi = 1
-      }
-      airflow-home = {
-        node = "nfs"
-        create_pv = false
       }
       airflow-home2 = {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 10
-      }
-      site-db = {
-        node = "nfs"
-        create_pv = false
       }
       site-db2 = {
         node = "rook"
@@ -132,6 +110,7 @@ locals {
       api2 = {
         node = "rook"
         rook_storage_request_gi = 2
+        rsync_from_nfs = "api"
       }
       data-input-db = {
         node = "nfs"
@@ -140,6 +119,7 @@ locals {
       data-input-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "data-input-db"
       }
       elasticsearch-certs = {
         node = "nfs"
@@ -149,6 +129,7 @@ locals {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 1
+        rsync_from_nfs = "elasticsearch-certs"
       }
       kibana-data = {
         node = "nfs"
@@ -157,25 +138,17 @@ locals {
       kibana-data2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "kibana-data"
       }
     }
     odata = {
       ckan = {
         node = "worker2"
-        # rsync -az --delete --checksum 172.16.0.9:/export/odata/ckan/ /mnt/storage/odata/ckan/
-      }
-      pipelines = {
-        node = "nfs"
-        create_pv = false
       }
       pipelines2 = {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 1
-      }
-      ckan-jobs-db = {
-        node = "nfs"
-        create_pv = false
       }
       ckan-jobs-db2 = {
         node = "rook"
@@ -183,27 +156,14 @@ locals {
       }
       datastore-db = {
         node = "worker2"
-        # rsync -az --delete --checksum 172.16.0.9:/export/odata/datastore-db-postgresql-data/ /mnt/storage/odata/datastore-db/
-      }
-      postgresql-data = {
-        node = "nfs"
-        create_pv = false
       }
       postgresql-data2 = {
         node = "rook"
         rook_storage_request_gi = 10
       }
-      pipelines-redis = {
-        node = "nfs"
-        create_pv = false
-      }
       pipelines-redis2 = {
         node = "rook"
         rook_storage_request_gi = 1
-      }
-      solr = {
-        node = "nfs"
-        create_pv = false
       }
       solr2 = {
         node = "rook"
@@ -214,7 +174,8 @@ locals {
       gtfs = {
         node = "worker2"
         create_pv = false
-        # rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
+        rsync_from_nfs = "openbus/gtfs"
+        # ssh hasadna-rke2-worker2 rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
       }
       gtfs-nginx = {
         ref_existing = "gtfs"
@@ -229,6 +190,7 @@ locals {
       airflow-db2 = {
         node = "rook"
         rook_storage_request_gi = 15
+        rsync_from_nfs = "airflow-db"
       }
       airflow-home = {
         node = "nfs"
@@ -238,6 +200,7 @@ locals {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 5
+        rsync_from_nfs = "airflow-home"
       }
       legacy = {
         node = "nfs"
@@ -246,6 +209,7 @@ locals {
       legacy2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "legacy"
       }
       siri-requester = {
         node = "nfs"
@@ -254,13 +218,13 @@ locals {
       siri-requester2 = {
         node = "rook"
         rook_storage_request_gi = 20
+        rsync_from_nfs = "siri-requester"
       }
     }
     srm-etl-production = {
       data = {
         node = "worker1"
         create_pv = false
-        # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-production/ /mnt/storage/srm-etl-production/data/
       }
       minio = {
         ref_existing = "data"
@@ -279,7 +243,6 @@ locals {
       data = {
         node = "worker2"
         create_pv = false
-        # rsync -az --delete --checksum 172.16.0.9:/export/srm/etl-staging/ /mnt/storage/srm-etl-staging/data/
       }
       minio = {
         ref_existing = "data"
@@ -295,28 +258,13 @@ locals {
       }
     }
     forum = {
-      discourse = {
-        node = "nfs"
-        namespace_path = "nfs-client-provisioner"
-        path = "forum-forum-discourse-pvc-6965541d-4753-42ba-81bf-9d3184a8272f"
-      }
       discourse2 = {
         node = "rook"
         rook_storage_request_gi = 5
       }
-      postgres = {
-        node = "nfs"
-        namespace_path = "nfs-client-provisioner"
-        path = "forum-data-forum-postgresql-0-pvc-a8c93ad1-2872-4528-a50f-6d7393bcd36d"
-      }
       postgres2 = {
         node = "rook"
         rook_storage_request_gi = 5
-      }
-      redis = {
-        node = "nfs"
-        namespace_path = "nfs-client-provisioner"
-        path = "forum-redis-data-forum-redis-master-0-pvc-f9279b40-54d0-4651-a363-b6788d98c772"
       }
       redis2 = {
         node = "rook"
@@ -324,65 +272,40 @@ locals {
       }
     }
     betaknesset = {
-      elasticsearch = {
-        node = "nfs"
-        namespace_path = "nfs-client-provisioner"
-        # the actual path is archived-betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff
-        # there is a bind mount that puts it in this path
-        path = "betaknesset-elasticsearch-data-betaknesset-elasticsearch-es-default-0-pvc-ea756c0c-256f-4d50-8095-146a9084bfff"
-        create_pvc = false
-      }
-      elasticsearch2 = {
+      elasticsearch-data-betaknesset-elasticsearch-es-default-0 = {
         node = "rook"
         rook_storage_request_gi = 15
+        pvc_labels_name = "betaknesset-elasticsearch-es-default-0"
       }
-      postgres = {
-        node = "nfs"
-        create_pv = false
-      }
-      postgres = {
+      postgres2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 20
       }
     }
     datacity = {
-      baserow = {
-        node = "nfs"
-        create_pv = false
-      }
-      ckan-dgp-db = {
-        node = "nfs"
-        create_pv = false
-      }
-      ckan-dgp-logs = {
-        node = "nfs"
-        create_pv = false
-      }
-      importer = {
-        node = "nfs"
-        create_pv = false
-      }
-      mapali = {
-        node = "nfs"
-        create_pv = false
-      }
       baserow2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
       }
       ckan-dgp-db2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 15
       }
       ckan-dgp-logs2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
       }
       importer2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 15
       }
       mapali2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
       }
@@ -395,6 +318,7 @@ locals {
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "db"
       }
     }
     israelproxy = {
@@ -405,6 +329,7 @@ locals {
       differ2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "differ"
       }
     }
     leafy = {
@@ -415,6 +340,7 @@ locals {
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "db"
       }
     }
     migdar = {
@@ -425,6 +351,7 @@ locals {
       elasticsearch2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "elasticsearch"
       }
       internal-search-ui = {
         node = "nfs"
@@ -433,6 +360,7 @@ locals {
       internal-search-ui2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "internal-search-ui"
       }
       pipelines = {
         node = "nfs"
@@ -441,6 +369,7 @@ locals {
       pipelines2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "pipelines"
       }
       postgres = {
         node = "nfs"
@@ -449,6 +378,7 @@ locals {
       postgres2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "postgres"
       }
     }
     openlaw = {
@@ -456,9 +386,10 @@ locals {
         node = "nfs"
         create_pv = false
       }
-      archive_db2 = {
+      archive-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "archive_db"
       }
     }
     openpension = {
@@ -469,14 +400,16 @@ locals {
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "db"
       }
       ng_db = {
         node = "nfs"
         create_pv = false
       }
-      ng_db2 = {
+      ng-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "ng_db"
       }
       staging-db = {
         node = "nfs"
@@ -485,6 +418,7 @@ locals {
       staging-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "staging-db"
       }
       staging-mongodb = {
         node = "nfs"
@@ -493,6 +427,7 @@ locals {
       staging-mongodb2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "staging-mongodb"
       }
     }
     redash = {
@@ -503,6 +438,7 @@ locals {
       postgres2 = {
         node = "rook"
         rook_storage_request_gi = 15
+        rsync_from_nfs = "postgres"
       }
     }
     reportit = {
@@ -513,6 +449,7 @@ locals {
       botkit2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "botkit"
       }
       postgres = {
         node = "nfs"
@@ -521,6 +458,7 @@ locals {
       postgres2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "postgres"
       }
       strapi = {
         node = "nfs"
@@ -529,6 +467,7 @@ locals {
       strapi2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "strapi"
       }
     }
     resourcesaver = {
@@ -539,6 +478,7 @@ locals {
       proxy2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "proxy"
       }
     }
     treebase = {
@@ -549,6 +489,7 @@ locals {
       db2 = {
         node = "rook"
         rook_storage_request_gi = 15
+        rsync_from_nfs = "db"
       }
       importer = {
         node = "nfs"
@@ -557,6 +498,7 @@ locals {
       importer2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "importer"
       }
     }
     wordpress = {
@@ -567,6 +509,7 @@ locals {
       datacity2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "datacity"
       }
       db = {
         node = "nfs"
@@ -575,6 +518,7 @@ locals {
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        rsync_from_nfs = "db"
       }
     }
   }
@@ -624,6 +568,8 @@ locals {
             _base_path = lookup(storage, "node", false) == "nfs" ? "/export" : "/mnt/storage"
             rook_shared = lookup(storage, "rook_shared", false)
             rook_storage_request_gi = lookup(storage, "rook_storage_request_gi", false)
+            rsync_from_nfs = lookup(storage, "rsync_from_nfs", false)
+            pvc_labels_name = lookup(storage, "pvc_labels_name", "${namespace}-${name}")
           }
         ]
       ]
@@ -843,7 +789,7 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_block" {
     name = each.value.name
     namespace = each.value.namespace
     labels = {
-      "app.kubernetes.io/name" = "${each.value.namespace}-${each.value.name}"
+      "app.kubernetes.io/name" = each.value.pvc_labels_name
       "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
     }
   }
@@ -867,7 +813,7 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_shared" {
     name = each.value.name
     namespace = each.value.namespace
     labels = {
-      "app.kubernetes.io/name" = "${each.value.namespace}-${each.value.name}"
+      "app.kubernetes.io/name" = each.value.pvc_labels_name
       "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
     }
   }
@@ -879,5 +825,51 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_shared" {
       }
     }
     access_modes = ["ReadWriteMany"]
+  }
+}
+
+resource "null_resource" "rke2_storage_rsync_from_nfs_to_rook" {
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.rsync_from_nfs != false && v.node == "rook"}
+  depends_on = [
+    kubernetes_persistent_volume_claim.rke2_storage_rook_block,
+    kubernetes_persistent_volume_claim.rke2_storage_rook_shared,
+  ]
+  triggers = {
+    counter = each.value.counter
+    command = <<-EOF
+      set -euo pipefail
+      mkdir -p "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook"
+      while [ "$(ls "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook" | wc -l)" -gt 5 ]; do
+        echo "There are too many rsync processes running, waiting for some to finish..."
+        sleep 5
+      done
+      touch "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook/${each.key}"
+      SOURCE_PATH="/${local.rke2_storage_flat["${each.value.namespace}_${each.value.rsync_from_nfs}"].namespace_path}/${local.rke2_storage_flat["${each.value.namespace}_${each.value.rsync_from_nfs}"].path}"
+      bin/rke2_storage_rsync.sh "${each.value.namespace}" nfs "$SOURCE_PATH" "${each.value.name}"
+      rm "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook/${each.key}"
+    EOF
+  }
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command = self.triggers.command
+  }
+}
+
+resource "null_resource" "rke2_storage_rsync_from_nfs_to_worker" {
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.rsync_from_nfs != false && v.node != "rook"}
+  depends_on = [
+    null_resource.rke2_storage,
+    null_resource.rke2_mount_workers_storage
+  ]
+  triggers = {
+    counter = each.value.counter
+    command = <<-EOF
+      set -euo pipefail
+      ssh hasadna-rke2-${each.value.node} rsync -az --delete --checksum "172.16.0.9:/export/${each.value.rsync_from_nfs}/" "${each.value.full_path}/"
+    EOF
+  }
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command = self.triggers.command
   }
 }
