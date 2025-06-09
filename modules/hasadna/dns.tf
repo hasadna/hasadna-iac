@@ -21,6 +21,7 @@ resource "cloudflare_record" "rke2_ingress_cnames" {
     # "*.k8s",   # argo-events-github (argoevents), label-studio (hasadna)
     "label-studio.k8s",
     "argo-events-github.k8s",
+    "open-bus-backend.k8s",  # (openbus)
     "argo",  # (argoworkflows)
     "betaknesset-elasticsearch",  # (betaknesset)
     "betaknesset-kibana",  # (betaknesset)

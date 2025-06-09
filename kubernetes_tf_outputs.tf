@@ -15,14 +15,14 @@ locals {
   )
 }
 
-resource "kubernetes_config_map" "tf_outputs" {
-  provider = kubernetes.rancher
-  metadata {
-    name = "tf-outputs"
-    namespace = "argocd"
-  }
-  data = local.tf_outputs_data
-}
+# resource "kubernetes_config_map" "tf_outputs" {
+#   provider = kubernetes.rancher
+#   metadata {
+#     name = "tf-outputs"
+#     namespace = "argocd"
+#   }
+#   data = local.tf_outputs_data
+# }
 
 resource "kubernetes_config_map" "rke2_tf_outputs" {
   provider = kubernetes.rke2

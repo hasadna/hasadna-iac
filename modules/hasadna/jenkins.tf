@@ -13,7 +13,7 @@ resource "kamatera_server" "k972il_jenkins" {
   }
 
   lifecycle {
-    ignore_changes = [image_id]
+    ignore_changes = [image_id, power_on]
   }
 }
 

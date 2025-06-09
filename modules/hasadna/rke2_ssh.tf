@@ -17,7 +17,13 @@ resource "local_file" "rke2_ssh_config" {
       User root
       Port 25766
 
+    Host hasadna-proxy1
+      HostName ${local.hasadna_proxy1_private_ip}
+      User root
+      ProxyJump hasadna-ssh-access-point
+
     ${local.rke2_ssh_config_servers}
+
   EOF
   filename = "/etc/hasadna/rke2_ssh_config"
 }

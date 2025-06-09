@@ -18,7 +18,7 @@ resource "kamatera_server" "k972il_cluster2_management" {
   }
 
   lifecycle {
-    ignore_changes = [image_id]
+    ignore_changes = [image_id, power_on]
   }
 }
 

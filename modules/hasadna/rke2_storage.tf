@@ -174,8 +174,6 @@ locals {
       gtfs = {
         node = "worker2"
         create_pv = false
-        rsync_from_nfs = "openbus/gtfs"
-        # ssh hasadna-rke2-worker2 rsync -az --delete --checksum 172.16.0.9:/export/openbus/gtfs/ /mnt/storage/openbus/gtfs/
       }
       gtfs-nginx = {
         ref_existing = "gtfs"
@@ -183,42 +181,24 @@ locals {
       airflow-scheduler = {
         ref_existing = "gtfs"
       }
-      airflow-db = {
-        node = "nfs"
-        create_pv = false
-      }
       airflow-db2 = {
         node = "rook"
         rook_storage_request_gi = 15
-        rsync_from_nfs = "airflow-db"
-      }
-      airflow-home = {
-        node = "nfs"
-        create_pv = false
       }
       airflow-home2 = {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 5
-        rsync_from_nfs = "airflow-home"
-      }
-      legacy = {
-        node = "nfs"
-        create_pv = false
       }
       legacy2 = {
         node = "rook"
+        rook_shared = true
         rook_storage_request_gi = 5
-        rsync_from_nfs = "legacy"
-      }
-      siri-requester = {
-        node = "nfs"
-        create_pv = false
       }
       siri-requester2 = {
         node = "rook"
+        rook_shared = true
         rook_storage_request_gi = 20
-        rsync_from_nfs = "siri-requester"
       }
     }
     srm-etl-production = {
@@ -362,6 +342,7 @@ locals {
         create_pv = false
       }
       botkit2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
         rsync_from_nfs = "botkit"
@@ -371,6 +352,7 @@ locals {
         create_pv = false
       }
       postgres2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
         rsync_from_nfs = "postgres"
@@ -380,6 +362,7 @@ locals {
         create_pv = false
       }
       strapi2 = {
+        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
         rsync_from_nfs = "strapi"
