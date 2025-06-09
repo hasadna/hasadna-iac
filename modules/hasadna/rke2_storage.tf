@@ -278,167 +278,82 @@ locals {
         pvc_labels_name = "betaknesset-elasticsearch-es-default-0"
       }
       postgres2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 20
       }
     }
     datacity = {
       baserow2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
       }
       ckan-dgp-db2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 15
       }
       ckan-dgp-logs2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
       }
       importer2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 15
       }
       mapali2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
       }
     }
     dear-diary = {
-      db = {
-        node = "nfs"
-        create_pv = false
-      }
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "db"
-      }
-    }
-    israelproxy = {
-      differ = {
-        node = "nfs"
-        create_pv = false
-      }
-      differ2 = {
-        node = "rook"
-        rook_storage_request_gi = 5
-        rsync_from_nfs = "differ"
       }
     }
     leafy = {
-      db = {
-        node = "nfs"
-        create_pv = false
-      }
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "db"
       }
     }
     migdar = {
-      elasticsearch = {
-        node = "nfs"
-        create_pv = false
-      }
       elasticsearch2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "elasticsearch"
-      }
-      internal-search-ui = {
-        node = "nfs"
-        create_pv = false
       }
       internal-search-ui2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "internal-search-ui"
-      }
-      pipelines = {
-        node = "nfs"
-        create_pv = false
       }
       pipelines2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "pipelines"
-      }
-      postgres = {
-        node = "nfs"
-        create_pv = false
       }
       postgres2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "postgres"
       }
     }
     openlaw = {
-      archive_db = {
-        node = "nfs"
-        create_pv = false
-      }
       archive-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "archive_db"
       }
     }
     openpension = {
-      db = {
-        node = "nfs"
-        create_pv = false
-      }
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "db"
-      }
-      ng_db = {
-        node = "nfs"
-        create_pv = false
       }
       ng-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "ng_db"
-      }
-      staging-db = {
-        node = "nfs"
-        create_pv = false
-      }
-      staging-db2 = {
-        node = "rook"
-        rook_storage_request_gi = 5
-        rsync_from_nfs = "staging-db"
-      }
-      staging-mongodb = {
-        node = "nfs"
-        create_pv = false
-      }
-      staging-mongodb2 = {
-        node = "rook"
-        rook_storage_request_gi = 5
-        rsync_from_nfs = "staging-mongodb"
       }
     }
     redash = {
-      postgres = {
-        node = "nfs"
-        create_pv = false
-      }
       postgres2 = {
         node = "rook"
         rook_storage_request_gi = 15
-        rsync_from_nfs = "postgres"
       }
     }
     reportit = {
@@ -471,54 +386,29 @@ locals {
       }
     }
     resourcesaver = {
-      proxy = {
-        node = "nfs"
-        create_pv = false
-      }
       proxy2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "proxy"
       }
     }
     treebase = {
-      db = {
-        node = "nfs"
-        create_pv = false
-      }
       db2 = {
         node = "rook"
         rook_storage_request_gi = 15
-        rsync_from_nfs = "db"
-      }
-      importer = {
-        node = "nfs"
-        create_pv = false
       }
       importer2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "importer"
       }
     }
     wordpress = {
-      datacity = {
-        node = "nfs"
-        create_pv = false
-      }
       datacity2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "datacity"
-      }
-      db = {
-        node = "nfs"
-        create_pv = false
       }
       db2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "db"
       }
     }
   }
