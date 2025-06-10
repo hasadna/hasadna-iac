@@ -45,7 +45,7 @@ resource "kubernetes_secret" "rke2_vault_plugin_credentials" {
 resource "null_resource" "rke2_argocd_install" {
   depends_on = [kubernetes_namespace.rke2_argocd]
   triggers = {
-    counter = 8
+    counter = 9
   }
   provisioner "local-exec" {
     command = <<-EOT
