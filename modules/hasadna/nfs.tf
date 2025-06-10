@@ -1,3 +1,5 @@
+# in some places we refer to hasadna-nfs1 - it's this server
+
 resource "kamatera_server" "hasadna_nfs2" {
   name = "hasadna-nfs2"
   datacenter_id = "IL"
@@ -73,3 +75,7 @@ resource "kamatera_server" "hasadna_nfs2" {
 # rm -f /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf
 #      systemctl daemon-reload
 #      systemctl restart systemd-networkd-wait-online.service
+
+output "hasadna_nfs1_internal_ip" {
+  value = kamatera_server.hasadna_nfs2.private_ips[0]
+}

@@ -6,6 +6,12 @@ resource "aws_s3_bucket" "hasadna_kamatera_cluster_backups" {
     }
 }
 
+resource "aws_s3_bucket_policy" "hasadna_kamatera_cluster_backups" {
+    bucket = aws_s3_bucket.hasadna_kamatera_cluster_backups.id
+    policy = "{\"Version\":\"2012-10-17\",\"Id\":\"Policy1580027936722\",\"Statement\":[{\"Sid\":\"Stmt1580027931015\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::518193018304:user/hasadna-kamatera-backups\"},\"Action\":\"s3:*\",\"Resource\":\"arn:aws:s3:::hasadna-kamatera-cluster-backups\"}]}"
+    provider = aws.us_east_1
+}
+
 resource "aws_s3_bucket" "hasadna_discourse_backup" {
     bucket = "hasadna-discourse-backup"
     tags = {

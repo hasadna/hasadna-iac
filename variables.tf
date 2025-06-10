@@ -17,11 +17,6 @@ variable "hasadna_ssh_access_point_ssh_port" {
   sensitive = true
 }
 
-variable "rancher_admin_token" {
-  type = string
-  sensitive = true
-}
-
 variable "datacity_google_service_account_b64" {
   type = string
   sensitive = true

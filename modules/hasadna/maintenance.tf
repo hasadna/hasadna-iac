@@ -29,13 +29,13 @@ resource "null_resource" "rke2_maintenance_cronjob" {
     ]
     triggers = {
       hash = join("\n", concat([
-        sha256(file("${path.module}/rke2_maintenance_cronjob.py")),
-        sha256(file("${path.module}/hasadna_k8s.sh"))
+        sha256(file("${path.module}/maintenance_rke2_cronjob.py")),
+        sha256(file("${path.module}/maintenance_hasadna_k8s.sh"))
       ]))
       command = <<-EOT
         set -euo pipefail
-        scp ${path.module}/rke2_maintenance_cronjob.py ${each.value.server}:/root/rke2_maintenance_cronjob.py
-        scp ${path.module}/hasadna_k8s.sh ${each.value.server}:/root/hasadna_k8s.sh
+        scp ${path.module}/maintenance_rke2_cronjob.py ${each.value.server}:/root/rke2_maintenance_cronjob.py
+        scp ${path.module}/maintenance_hasadna_k8s.sh ${each.value.server}:/root/hasadna_k8s.sh
         ssh ${each.value.server} "
           set -euo pipefail
           echo '${statuscake_heartbeat_check.rke2_maintenance[each.key].check_url}' > /root/rke2_maintenance_heartbeat_url

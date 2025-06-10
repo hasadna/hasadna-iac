@@ -337,35 +337,17 @@ locals {
       }
     }
     reportit = {
-      botkit = {
-        node = "nfs"
-        create_pv = false
-      }
       botkit2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "botkit"
-      }
-      postgres = {
-        node = "nfs"
-        create_pv = false
       }
       postgres2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "postgres"
-      }
-      strapi = {
-        node = "nfs"
-        create_pv = false
       }
       strapi2 = {
-        counter = 2
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "strapi"
       }
     }
     resourcesaver = {

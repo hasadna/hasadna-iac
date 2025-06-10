@@ -127,13 +127,13 @@ resource "null_resource" "kopia_init_node" {
     triggers = {
         server = each.key
         hash = join("\n", [
-          sha256(file("${path.module}/rke2_backups_kopia_connect.sh")),
-          sha256(file("${path.module}/rke2_backups_cronjob.sh")),
+          sha256(file("${path.module}/backup_kopia_connect.sh")),
+          sha256(file("${path.module}/backup_rke2_cronjob.sh")),
         ])
         command = <<-EOT
         set -euo pipefail
-        scp ${path.module}/rke2_backups_kopia_connect.sh ${each.key}:/root/kopia_connect.sh
-        scp ${path.module}/rke2_backups_cronjob.sh ${each.key}:/root/backups_cronjob.sh
+        scp ${path.module}/backup_kopia_connect.sh ${each.key}:/root/kopia_connect.sh
+        scp ${path.module}/backup_rke2_cronjob.sh ${each.key}:/root/backups_cronjob.sh
         ssh ${each.key} "
           set -euo pipefail
           rm -f kopia-${local.kopia_version}-linux-x64.tar.gz

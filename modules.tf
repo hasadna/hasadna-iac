@@ -3,7 +3,6 @@ module "hasadna" {
   domain_infra_1 = var.domain_infra_1
   ssh_private_key = var.ssh_private_key
   hasadna_ssh_access_point_ssh_port = var.hasadna_ssh_access_point_ssh_port
-  rancher_admin_token = var.rancher_admin_token
   ssh_authorized_keys = var.ssh_authorized_keys
   vault_addr = var.vault_addr
   rke2_kubeconfig_path = var.rke2_kubeconfig_path
@@ -18,7 +17,6 @@ module "openbus" {
   ssh_private_key = var.ssh_private_key
   cloudflare_zone_hasadna_org_il = module.hasadna.cloudflare_zone_hasadna_org_il
   cluster_ingress_hostname = module.hasadna.rke2_cluster_ingress_hostname
-  # cluster_ingress_hostname = module.hasadna.cluster_ingress_hostname
 }
 
 module "srm" {

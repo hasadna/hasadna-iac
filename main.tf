@@ -16,7 +16,7 @@ terraform {
     }
     cloudflare = {
       source = "cloudflare/cloudflare"
-      version = "3.17.0"
+      version = "5.5.0"
     }
     github = {
       source  = "integrations/github"
@@ -39,11 +39,6 @@ provider "aws" {
 
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
-}
-
-provider "kubernetes" {
-  alias = "rancher"
-  config_path = var.rancher_kubeconfig_path
 }
 
 provider "kubernetes" {

@@ -12,9 +12,6 @@ def vault_read(path):
 
 
 def main():
-    if not os.path.exists('.kubeconfig'):
-        with open('.kubeconfig', 'w') as f:
-            f.write(vault_read('Projects/iac/k8s')['kubeconfig'])
     values = {
         'AWS_ACCESS_KEY_ID': vault_read('Projects/iac/aws')['AWS_ACCESS_KEY_ID'],
         'AWS_SECRET_ACCESS_KEY': vault_read('Projects/iac/aws')['AWS_SECRET_ACCESS_KEY'],

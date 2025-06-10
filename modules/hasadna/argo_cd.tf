@@ -51,7 +51,7 @@ resource "null_resource" "rke2_argocd_install" {
     command = <<-EOT
       export KUBECONFIG=${var.rke2_kubeconfig_path}
       export KUBE_VERSION=${local.kube_version}
-      bash ${path.module}/rke2_argocd_install.sh
+      bash ${path.module}/argo_cd_install.sh
     EOT
   }
 }
@@ -67,3 +67,23 @@ resource "null_resource" "rke2_argocd_install" {
 #  rke2_github_client_id
 #  rke2_github_client_secret
 # reinstall rke2 argocd to apply the new secrets
+
+resource "random_string" "argocd_github_webhook_secret" {
+  length = 32
+  special = false
+}
+
+resource "github_organization_webhook" "argocd_push" {
+  events = ["push"]
+  configuration {
+    url = "https://argocd.hasadna.org.il/api/webhook"
+    content_type = "json"
+    insecure_ssl = false
+    secret = random_string.argocd_github_webhook_secret.result
+  }
+}
+
+output "argocd_github_webhook_secret" {
+  value = random_string.argocd_github_webhook_secret.result
+  sensitive = true
+}

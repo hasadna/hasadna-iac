@@ -1,76 +1,113 @@
-# comments in brackets are the argo app that use that DNS record
-
-resource "cloudflare_record" "infra" {
-  for_each = toset([
-    # "argo",
-    # "forum",
-    # "leafy",
-    # "open-pension-ng",
-    # "open-law-archive",
-    "*.k8s",
-  ])
-  zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
-  name    = each.value
-  value   = values(cloudflare_record.ingress)[0].hostname
-  type    = "CNAME"
+data "cloudflare_zone" "domain_infra_1" {
+  filter = {
+    name = var.domain_infra_1
+  }
 }
 
-resource "cloudflare_record" "rke2_ingress_cnames" {
-  for_each = toset([
+data "cloudflare_zone" "hasadna_org_il" {
+  filter = {
+    name = "hasadna.org.il"
+  }
+}
+
+locals {
+  rke2_ingress_cnames_names = [
+    "*.k8s",
+    "*.rke2",
     "dear-diary",
-    # "*.k8s",   # argo-events-github (argoevents), label-studio (hasadna)
-    "label-studio.k8s",
-    "argo-events-github.k8s",
-    "open-bus-backend.k8s",  # (openbus)
-    "argo",  # (argoworkflows)
-    "betaknesset-elasticsearch",  # (betaknesset)
-    "betaknesset-kibana",  # (betaknesset)
-    "forum",  # (forum)
-    "leafy",  # (leafy)
-    "open-pension-ng",  # (openpension)
-    "open-law-archive",  # (openlaw)
-    "redash",  # (redash)
-    "resourcesaverproxy",  # (resourcesaverproxy)
-    # already created manually -> # "vault",  # (vault)
-    # "argocd",  # (argocd)
-  ])
+    "argo",
+    "betaknesset-elasticsearch",
+    "betaknesset-kibana",
+    "forum",
+    "leafy",
+    "open-pension-ng",
+    "open-law-archive",
+    "redash",
+    "resourcesaverproxy",
+    "vault",
+    "argocd",
+  ]
+}
+
+resource "cloudflare_dns_record" "rke2_ingress_cnames" {
+  for_each = toset(local.rke2_ingress_cnames_names)
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
-  name    = each.value
-  value   = values(cloudflare_record.rke2_ingress)[0].hostname
+  name    = "${each.value}.${data.cloudflare_zone.hasadna_org_il.name}"
+  content   = "${local.rke2_ingress_name}.${data.cloudflare_zone.hasadna_org_il.name}"
   type    = "CNAME"
+  ttl = 1
 }
 
 data "cloudflare_zone" "kikar_org" {
-  name = "kikar.org"
+  filter = {
+    name = "kikar.org"
+  }
 }
 
 data "cloudflare_zone" "otrain_org" {
-  name = "otrain.org"
+  filter = {
+    name = "otrain.org"
+  }
 }
 
-resource "cloudflare_record" "extra" {
+resource "cloudflare_dns_record" "extra" {
   for_each = {
-    "kikar_org": {  # (hasadna)
+    "kikar_org": {
       "zone_id": data.cloudflare_zone.kikar_org.zone_id,
       "name": data.cloudflare_zone.kikar_org.name
     },
-    "www_kikar_org": {  # (hasadna)
+    "www_kikar_org": {
       "zone_id": data.cloudflare_zone.kikar_org.zone_id,
       "name": "www.${data.cloudflare_zone.kikar_org.name}"
     },
-    "otrain_org": {  # (hasadna)
+    "otrain_org": {
       "zone_id": data.cloudflare_zone.otrain_org.zone_id,
       "name": data.cloudflare_zone.otrain_org.name
     },
-    "www_otrain_org": {  # (hasadna)
+    "www_otrain_org": {
       "zone_id": data.cloudflare_zone.otrain_org.zone_id,
       "name": "www.${data.cloudflare_zone.otrain_org.name}"
     },
   }
   zone_id = each.value["zone_id"]
   name    = each.value["name"]
-  value   = values(cloudflare_record.rke2_ingress)[0].hostname
-  # value   = values(cloudflare_record.ingress)[0].hostname
+  content   = "${local.rke2_ingress_name}.${data.cloudflare_zone.hasadna_org_il.name}"
   type = "CNAME"
   proxied = true
+  ttl = 1
+}
+
+output "cloudflare_zone_hasadna_org_il" {
+  value = data.cloudflare_zone.hasadna_org_il
+}
+
+output "cloudflare_records_rke2_ingress_cnames_hostnames" {
+  value = {
+    for name in local.rke2_ingress_cnames_names : name => "${name}.${data.cloudflare_zone.hasadna_org_il.name}"
+  }
+}
+
+output "rke2_cluster_ingress_hostname" {
+  value = "${local.rke2_ingress_name}.${data.cloudflare_zone.hasadna_org_il.name}"
+}
+
+locals {
+  rke2_ingress_ips = [
+    for name, server in local.rke2_servers : local.rke2_server_public_ip[name]
+      if server.ingress
+  ]
+  rke2_ingress_name = "rke2-ingress"
+}
+
+resource "cloudflare_dns_record" "rke2_ingress" {
+  for_each = toset(local.rke2_ingress_ips)
+  zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
+  name    = "${local.rke2_ingress_name}.${data.cloudflare_zone.hasadna_org_il.name}"
+  type    = "A"
+  content   = each.key
+  ttl = 1
+}
+
+output "rke2_catchall_hostname" {
+  value = replace("rke2.${data.cloudflare_zone.hasadna_org_il.name}", "*.", "")
 }

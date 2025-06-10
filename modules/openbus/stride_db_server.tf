@@ -22,11 +22,12 @@ resource "kamatera_server" "hasadna_stride_db" {
   }
 }
 
-resource "cloudflare_record" "hasadna_stride_db" {
-  zone_id = var.cloudflare_zone_hasadna_org_il.id
-  name    = "open-bus-stride-db"
-  value   = kamatera_server.hasadna_stride_db.public_ips[0]
+resource "cloudflare_dns_record" "hasadna_stride_db" {
+  zone_id = var.cloudflare_zone_hasadna_org_il.zone_id
+  name    = "open-bus-stride-db.${var.cloudflare_zone_hasadna_org_il.name}"
+  content = kamatera_server.hasadna_stride_db.public_ips[0]
   type    = "A"
+  ttl = 1
 }
 
 resource null_resource "hasadna_stride_db_ssh_access_point" {

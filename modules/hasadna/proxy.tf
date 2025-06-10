@@ -8,7 +8,7 @@ data "vault_kv_secret_v2" "proxy" {
 
 locals {
   hasadna_proxy1_private_ip = data.vault_kv_secret_v2.proxy.data["hasadna-proxy1-private-ip"]
-  hasadna_proxy1_public_ip = data.vault_kv_secret_v2.proxy.data["hasadna-proxy1-public-ip"]
+  # hasadna_proxy1_public_ip = data.vault_kv_secret_v2.proxy.data["hasadna-proxy1-public-ip"]
 }
 
 resource "null_resource" "proxy1_squid" {
