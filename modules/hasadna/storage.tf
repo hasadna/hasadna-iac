@@ -375,6 +375,10 @@ locals {
         node = "rook"
         rook_storage_request_gi = 5
       }
+      socialpro-social = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
     }
   }
 }

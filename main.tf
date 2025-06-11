@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">=1.9.3"
+  required_version = ">=1.12.0"
   backend "pg" {}
   required_providers {
     aws = {

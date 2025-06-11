@@ -26,3 +26,10 @@ module "datacity" {
   source = "./modules/datacity"
   google_service_account = base64decode(var.datacity_google_service_account_b64)
 }
+
+module "apps" {
+  source = "./modules/apps"
+  providers = {
+    kubernetes = kubernetes.rke2
+  }
+}
