@@ -1,5 +1,6 @@
 # hasadna-proxy1 server
 # was setup manually, can ssh to it's private IP from hasadna-ssh-access-point server
+# Server public IP is allowlisted in Israel Government so it can be used as a proxy for scraping
 
 data "vault_kv_secret_v2" "proxy" {
   mount = "/kv"

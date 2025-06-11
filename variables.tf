@@ -3,10 +3,6 @@ variable "cloudflare_api_token" {
   sensitive = true
 }
 
-variable "domain_infra_1" {
-  type = string
-}
-
 variable "ssh_private_key" {
   type = string
   sensitive = true
@@ -38,11 +34,6 @@ variable "default_admin_email" {
 }
 
 variable "rke2_kubeconfig_path" {
-  type = string
-  sensitive = true
-}
-
-variable "rancher_kubeconfig_path" {
   type = string
   sensitive = true
 }

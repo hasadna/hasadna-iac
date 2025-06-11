@@ -1,6 +1,5 @@
 module "hasadna" {
   source = "./modules/hasadna"
-  domain_infra_1 = var.domain_infra_1
   ssh_private_key = var.ssh_private_key
   hasadna_ssh_access_point_ssh_port = var.hasadna_ssh_access_point_ssh_port
   ssh_authorized_keys = var.ssh_authorized_keys

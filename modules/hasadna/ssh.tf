@@ -132,6 +132,11 @@ resource "local_file" "rke2_ssh_config" {
       User root
       ProxyJump hasadna-ssh-access-point
 
+    Host hasadna-dev-server-eu1
+      HostName ${kamatera_server.dev_server_eu1.public_ips[0]}
+      User root
+      Port ${local.dev_server_eu1_ssh_port}
+
     ${local.rke2_ssh_config_servers}
 
   EOF

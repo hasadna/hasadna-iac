@@ -1,9 +1,3 @@
-data "cloudflare_zone" "domain_infra_1" {
-  filter = {
-    name = var.domain_infra_1
-  }
-}
-
 data "cloudflare_zone" "hasadna_org_il" {
   filter = {
     name = "hasadna.org.il"
