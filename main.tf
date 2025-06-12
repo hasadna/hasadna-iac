@@ -45,3 +45,4 @@ provider "kubernetes" {
   alias = "rke2"
   config_path = var.rke2_kubeconfig_path
 }
+
