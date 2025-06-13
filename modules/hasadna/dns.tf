@@ -5,31 +5,33 @@ data "cloudflare_zone" "hasadna_org_il" {
 }
 
 locals {
-  rke2_ingress_cnames_names = [
-    "*.k8s",
-    "*.rke2",
-    "dear-diary",
-    "argo",
-    "betaknesset-elasticsearch",
-    "betaknesset-kibana",
-    "forum",
-    "leafy",
-    "open-pension-ng",
-    "open-law-archive",
-    "redash",
-    "resourcesaverproxy",
-    "vault",
-    "argocd",
-  ]
+  rke2_ingress_cnames_names = {
+    "*.k8s" = {}
+    "*.rke2" = {}
+    "dear-diary" = {}
+    "argo" = {}
+    "betaknesset-elasticsearch" = {}
+    "betaknesset-kibana" = {}
+    "forum" = {}
+    "leafy" = {}
+    "open-pension-ng" = {}
+    "open-law-archive" = {}
+    "redash" = {}
+    "resourcesaverproxy" = {}
+    "vault" = {}
+    "argocd" = {}
+    "atlantis" = {proxied = true}
+  }
 }
 
 resource "cloudflare_dns_record" "rke2_ingress_cnames" {
-  for_each = toset(local.rke2_ingress_cnames_names)
+  for_each = local.rke2_ingress_cnames_names
   zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
-  name    = "${each.value}.${data.cloudflare_zone.hasadna_org_il.name}"
+  name    = "${each.key}.${data.cloudflare_zone.hasadna_org_il.name}"
   content   = "${local.rke2_ingress_name}.${data.cloudflare_zone.hasadna_org_il.name}"
   type    = "CNAME"
   ttl = 1
+  proxied = lookup(each.value, "proxied", false)
 }
 
 data "cloudflare_zone" "kikar_org" {
@@ -77,7 +79,7 @@ output "cloudflare_zone_hasadna_org_il" {
 
 output "cloudflare_records_rke2_ingress_cnames_hostnames" {
   value = {
-    for name in local.rke2_ingress_cnames_names : name => "${name}.${data.cloudflare_zone.hasadna_org_il.name}"
+    for name, _ in local.rke2_ingress_cnames_names : name => "${name}.${data.cloudflare_zone.hasadna_org_il.name}"
   }
 }
 

@@ -1,0 +1,21 @@
+version: 3
+projects:
+  - branch: main
+    dir: .
+    workflow: hasadna-iac
+workflows:
+  hasadna-iac:
+    plan:
+      steps:
+        - env:
+            name: VAULT_TOKEN
+            command: uv run bin/get_vault_token.py
+        - init:
+            extra_args: "-backend-config=$(uv run bin/get_backend_config.py)"
+        - plan
+    apply:
+      steps:
+        - env:
+            name: VAULT_TOKEN
+            command: uv run bin/get_vault_token.py
+        - apply

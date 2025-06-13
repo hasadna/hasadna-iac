@@ -5,7 +5,7 @@ terraform {
     }
     google = {
       source = "hashicorp/google"
-      version = "5.40.0"
+      version = "6.39.0"
     }
     cloudflare = {
       source = "cloudflare/cloudflare"

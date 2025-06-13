@@ -73,3 +73,27 @@ resource "null_resource" "dev_server_eu1_init" {
     command = self.triggers.command
   }
 }
+
+resource "null_resource" "dev_server_eu1_keepalive" {
+  triggers = {
+    command = <<-EOT
+      set -euo pipefail
+      scp modules/hasadna/dev_servers_keepalive_cronjob.sh hasadna-dev-server-eu1:/root/dev_servers_keepalive_cronjob.sh
+      ssh hasadna-dev-server-eu1 bash -c '
+        set -euo pipefail
+        mkdir -p /etc/hasadna
+        echo "#!/bin/bash" > /usr/local/bin/keepalive
+        echo "touch /etc/hasadna/dev_servers_keepalive" >> /usr/local/bin/keepalive
+        chmod +x /usr/local/bin/keepalive
+        keepalive
+        chmod +x /root/dev_servers_keepalive_cronjob.sh
+        echo "0 * * * * root /root/dev_servers_keepalive_cronjob.sh" > /etc/cron.d/dev_servers_keepalive
+        systemctl restart cron
+      '
+    EOT
+  }
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command = self.triggers.command
+  }
+}

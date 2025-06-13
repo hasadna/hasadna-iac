@@ -64,6 +64,10 @@ locals {
         create_pv = false
         full_path = "/var/lib/rancher/rke2/server/db/snapshots"
       }
+      atlantis-data = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
     }
     oknesset = {
       data = {

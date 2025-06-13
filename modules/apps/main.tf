@@ -6,5 +6,12 @@ terraform {
     vault = {
       source  = "hashicorp/vault"
     }
+    github = {
+      source  = "integrations/github"
+    }
   }
+}
+
+provider "github" {
+  owner = "hasadna"
 }
