@@ -15,3 +15,7 @@ terraform {
 provider "github" {
   owner = "hasadna"
 }
+
+variable "vault_addr" {
+  type = string
+}

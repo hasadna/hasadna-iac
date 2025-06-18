@@ -32,4 +32,5 @@ module "apps" {
   providers = {
     kubernetes = kubernetes.rke2
   }
+   vault_addr = var.vault_addr
 }

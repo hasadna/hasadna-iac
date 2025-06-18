@@ -40,3 +40,28 @@ resource "vault_kv_secret_v2" "atlantis_webhook" {
     web_password = random_string.atlantis_web_password.result
   })
 }
+
+
+resource "vault_approle_auth_backend_role" "atlantis_iac_admin" {
+  role_name = "atlantis_iac_admin"
+  token_policies = ["admin"]
+  token_ttl = 3600
+  token_max_ttl = 14400
+}
+
+resource "vault_approle_auth_backend_role_secret_id" "atlantis_iac_admin" {
+  role_name = vault_approle_auth_backend_role.atlantis_iac_admin.role_name
+}
+
+resource "kubernetes_secret" "atlantis_vault_creds" {
+    depends_on = [vault_approle_auth_backend_role_secret_id.atlantis_iac_admin]
+    metadata {
+        name = "atlantis-vault-creds"
+        namespace = "default"
+    }
+    data = {
+        ADDR = trimsuffix(var.vault_addr, "/")
+        ROLE_ID = vault_approle_auth_backend_role.atlantis_iac_admin.role_id
+        SECRET_ID = vault_approle_auth_backend_role_secret_id.atlantis_iac_admin.secret_id
+    }
+}
