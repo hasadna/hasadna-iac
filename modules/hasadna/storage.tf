@@ -526,7 +526,6 @@ resource "null_resource" "rke2_ensure_storage_namespaces" {
   depends_on = [null_resource.rke2_kubeconfig]
   triggers = {
     command = <<-EOF
-      export KUBECONFIG=${var.rke2_kubeconfig_path}
       if ! kubectl get namespace ${each.key} >/dev/null 2>&1; then
         echo "creating namespace ${each.key}"
         kubectl create namespace ${each.key}
@@ -537,6 +536,9 @@ resource "null_resource" "rke2_ensure_storage_namespaces" {
   }
   provisioner "local-exec" {
     command = self.triggers.command
+    environment = {
+      KUBECONFIG = var.rke2_kubeconfig_path
+    }
   }
 }
 

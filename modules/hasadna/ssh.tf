@@ -120,8 +120,8 @@ locals {
   ])
 }
 
-resource "local_file" "rke2_ssh_config" {
-  content = <<-EOF
+output "rke2_ssh_config" {
+  value = <<-EOF
     Host hasadna-ssh-access-point
       HostName ${kamatera_server.hasadna_ssh_access_point.public_ips[0]}
       User root
@@ -138,7 +138,5 @@ resource "local_file" "rke2_ssh_config" {
       Port ${local.dev_server_eu1_ssh_port}
 
     ${local.rke2_ssh_config_servers}
-
   EOF
-  filename = "/etc/hasadna/rke2_ssh_config"
 }
