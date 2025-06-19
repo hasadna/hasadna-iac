@@ -30,6 +30,19 @@ def vault_write_encrypt_data(vault_addr, vault_token, box, path, value):
     })
 
 
+def verify_vault(vault_addr, vault_token):
+    ttl_seconds = json.loads(subprocess.check_output(
+        ["vault", "token", "lookup", "-format=json"],
+        env={
+            **os.environ,
+            'VAULT_ADDR': vault_addr,
+            'VAULT_TOKEN': vault_token
+        }
+    ))['data']['ttl']
+    ttl_hours = ttl_seconds / 3600
+    print(f'Vault token TTL: {ttl_hours} hours')
+
+
 def init_ssh_config(tempdir, ssh_private_key, rke2_ssh_config):
     os.makedirs(os.path.join(tempdir, '.ssh'), exist_ok=True)
     with open(os.path.join(tempdir, '.ssh', 'private_key'), 'w') as f:
@@ -70,6 +83,7 @@ def main_initialize():
     if not vault_addr:
         vault_addr = input("Vault Address: https://")
         vault_addr = f"https://{vault_addr}".rstrip('/')
+    verify_vault(vault_addr, vault_token)
     github_username = os.getenv('GITHUB_USERNAME')
     if not github_username:
         github_username = input("GitHub User Name: ")
@@ -107,6 +121,7 @@ def main_shell():
     public_key_b64 = os.getenv('PUBLIC_KEY')
     tempdir = os.getenv('TEMPDIR')
     assert vault_token and vault_addr and github_username and private_key_b64 and public_key_b64 and tempdir
+    verify_vault(vault_addr, vault_token)
     private_key = PrivateKey(base64.b64decode(private_key_b64))
     public_key = PublicKey(base64.b64decode(public_key_b64))
     box = Box(private_key, public_key)
