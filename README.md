@@ -2,66 +2,25 @@
 
 This repo contains Terraform configurations for managing Hasadna infrastructure as code.
 
-## Running locally
+## Usage
 
-Prerequisites:
-
-* Python3 + [uv](https://pypi.org/project/uv/)
-* [vault binary](https://www.vaultproject.io/downloads)
-* Gcloud CLI
-* Docker
-
-Create venv and install dependencies
+First time users should run the interactivate initialization, it will prompt for the required values, it is safe to run multiple times to reinitialize or update:
 
 ```
-uv sync
+docker run --pull always -it ghcr.io/hasadna/hasadna-iac/atlantis:latest initialize
 ```
 
-Make sure to run all following commands from the venv
+Start a shell with configured terraform environment, it will ask for required values interactively and run terraform init:
 
 ```
-. .venv/bin/activate
+docker run --pull always --env-file /etc/hasadna/iac.env -it ghcr.io/hasadna/hasadna-iac/atlantis:latest shell
 ```
 
-Set vault credentials:
+Once inside the shell, run Terraform commands:
 
 ```
-export VAULT_ADDR=
-export VAULT_TOKEN=
+terraform plan
+terraform apply
 ```
 
-Set GitHub Token:
-
-```
-export GITHUB_TOKEN=...
-```
-
-Initialize (should only be done once):
-
-```
-uv run terraform init "-backend-config=$(uv run bin/get_backend_config.py)"
-```
-
-Set secret envvars:
-
-```
-eval "$(uv run bin/get_secret_envvars.py)"
-```
-
-Check the plan:
-
-```
-uv run terraform plan
-```
-
-Apply:
-
-```
-uv run terraform apply
-```
-
-Save the outputs to Vault:
-
-```
-uv run bin/save_outputs_to_vault.py
-```
+If you want to make changes to the code, you can mount the current directory into the container with `-v `pwd`:/home/atlantis/hasadna-iac`
