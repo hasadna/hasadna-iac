@@ -1,16 +1,9 @@
 locals {
-  rke2_maintenance_servers = merge(
-    {
-      for k, v in local.rke2_servers : k => {
-        server = "hasadna-rke2-${k}"
-      }
-    },
-    {
-      nfs1 = {
-          server = "hasadna-nfs1"
-      }
+  rke2_maintenance_servers = {
+    for k, v in local.rke2_servers : k => {
+      server = "hasadna-rke2-${k}"
     }
-  )
+  }
 }
 
 resource "statuscake_heartbeat_check" "rke2_maintenance" {

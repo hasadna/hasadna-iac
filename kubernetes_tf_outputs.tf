@@ -1,7 +1,6 @@
 locals {
   tf_outputs_data = merge(
     {
-      hasadna_nfs1_internal_ip = module.hasadna.hasadna_nfs1_internal_ip,
       ingress-leafy-webapp = module.hasadna.cloudflare_records_rke2_ingress_cnames_hostnames["leafy"],
       ingress-dear-diary-webapp = module.hasadna.cloudflare_records_rke2_ingress_cnames_hostnames["dear-diary"],
       ingress-open-pension-ng-webapp = module.hasadna.cloudflare_records_rke2_ingress_cnames_hostnames["open-pension-ng"],

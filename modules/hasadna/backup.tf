@@ -101,10 +101,7 @@ resource "null_resource" "kopia_init_repo" {
 
 locals {
   rke2_kopia_backup_servers = {
-    for server in concat(
-      ["hasadna-nfs1"],
-      [for node_name in keys(kamatera_server.rke2) : "hasadna-rke2-${node_name}"]
-    ) : server => {
+    for server in [for node_name in keys(kamatera_server.rke2) : "hasadna-rke2-${node_name}"] : server => {
       backup_paths = join(" ", [for k, v in local.rke2_storage_backup_paths : v.path if v.server == server])
       has_backup_paths = length([for k, v in local.rke2_storage_backup_paths : v.path if v.server == server]) > 0
     }

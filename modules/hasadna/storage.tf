@@ -4,7 +4,6 @@ locals {
     #   name = {
     #
     #     node: create local storage on this node
-    #       if set to "nfs" - it will use the central NFS server
     #       if set to "rook" - it will use the Rook Ceph cluster
     #           by default it will allow single pod to use the storage, to share storage with multiple pods, set rook_shared: true
     #           you must set rook_storage_request_gi to specify the requested storage size
@@ -107,42 +106,22 @@ locals {
       elasticsearch = {
         node = "worker2"
       }
-      api = {
-        node = "nfs"
-        create_pv = false
-      }
       api2 = {
         node = "rook"
         rook_storage_request_gi = 2
-        rsync_from_nfs = "api"
-      }
-      data-input-db = {
-        node = "nfs"
-        create_pv = false
       }
       data-input-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "data-input-db"
-      }
-      elasticsearch-certs = {
-        node = "nfs"
-        create_pv = false
       }
       elasticsearch-certs2 = {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 1
-        rsync_from_nfs = "elasticsearch-certs"
-      }
-      kibana-data = {
-        node = "nfs"
-        create_pv = false
       }
       kibana-data2 = {
         node = "rook"
         rook_storage_request_gi = 5
-        rsync_from_nfs = "kibana-data"
       }
     }
     odata = {
@@ -427,11 +406,10 @@ locals {
             counter = lookup(storage, "counter", 0)
             namespace_path = lookup(storage, "namespace_path", namespace)
             path = lookup(storage, "path", name)
-            full_path = lookup(storage, "full_path", "${lookup(storage, "node", false) == "nfs" ? "/export" : "/mnt/storage"}/${lookup(storage, "namespace_path", namespace)}/${lookup(storage, "path", name)}")
-            _base_path = lookup(storage, "node", false) == "nfs" ? "/export" : "/mnt/storage"
+            full_path = lookup(storage, "full_path", "/mnt/storage/${lookup(storage, "namespace_path", namespace)}/${lookup(storage, "path", name)}")
+            _base_path = "/mnt/storage"
             rook_shared = lookup(storage, "rook_shared", false)
             rook_storage_request_gi = lookup(storage, "rook_storage_request_gi", false)
-            rsync_from_nfs = lookup(storage, "rsync_from_nfs", false)
             pvc_labels_name = lookup(storage, "pvc_labels_name", "${namespace}-${name}")
           }
         ]
@@ -443,7 +421,7 @@ locals {
   rke2_storage_backup_paths = {
     for k, v in local.rke2_storage_flat : k => {
       path = v.full_path
-      server = v.node == "nfs" ? "hasadna-nfs1" : "hasadna-rke2-${v.node}"
+      server = "hasadna-rke2-${v.node}"
     } if v.ref_existing == false && v.node != "rook"
   }
 
@@ -453,15 +431,7 @@ locals {
       counter = v.counter
       node = v.node
       mkdir_path = v.full_path
-    } if v.ref_existing == false && v.node != "nfs" && v.node != false && v.node != "rook"
-  }
-
-  # paths to create on the nfs server
-  rke2_storage_nfs_mkdir_paths = {
-    for k, v in local.rke2_storage_flat : k => {
-      counter = v.counter
-      mkdir_path = v.full_path
-    } if v.ref_existing == false && v.node == "nfs"
+    } if v.ref_existing == false && v.node != false && v.node != "rook"
   }
 
   # Persistent Volumes to create for local storage paths
@@ -472,17 +442,7 @@ locals {
       name = v.name
       node = v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node
       path = "${v._base_path}/${v.ref_existing == false ? v.namespace_path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].namespace_path}/${v.ref_existing == false ? v.path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].path}${v.pv_subpath}"
-    } if v.create_pv && !contains(["nfs", "rook"], v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node)
-  }
-
-  # Persistent Volumes to create for NFS storage paths
-  rke2_storage_pv_create_nfs = {
-    for k, v in local.rke2_storage_flat : k => {
-      counter = v.counter
-      namespace = v.namespace
-      name = v.name
-      path = "/${v.ref_existing == false ? v.namespace_path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].namespace_path}/${v.ref_existing == false ? v.path : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].path}${v.pv_subpath}"
-    } if v.create_pv && (v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node) == "nfs"
+    } if v.create_pv && !contains(["rook"], v.ref_existing == false ? v.node : local.rke2_storage_flat["${v.namespace}_${v.ref_existing}"].node)
   }
 }
 
@@ -493,27 +453,6 @@ resource "null_resource" "rke2_storage" {
     counter = each.value.counter
     command = <<-EOF
       ssh hasadna-rke2-${each.value.node} "mkdir -p ${each.value.mkdir_path}"
-    EOF
-  }
-  provisioner "local-exec" {
-    command = self.triggers.command
-  }
-}
-
-resource "null_resource" "rke2_storage_init_nfs" {
-  for_each = local.rke2_storage_nfs_mkdir_paths
-  depends_on = [null_resource.rke2_mount_workers_storage]
-  triggers = {
-    counter = each.value.counter
-    command = <<-EOF
-      ssh hasadna-nfs1 "
-        if [ -e ${each.value.mkdir_path} ]; then
-          echo "${each.value.mkdir_path}: already exists"
-        else
-          echo "${each.value.mkdir_path}: creating" &&\
-          mkdir -p ${each.value.mkdir_path}
-        fi
-      "
     EOF
   }
   provisioner "local-exec" {
@@ -589,35 +528,9 @@ resource "kubernetes_persistent_volume" "rke2_storage" {
   }
 }
 
-resource "kubernetes_persistent_volume" "rke2_storage_ref_nfs" {
-  for_each = local.rke2_storage_pv_create_nfs
-  depends_on = [null_resource.rke2_kubeconfig, null_resource.rke2_storage]
-  provider = kubernetes.rke2
-  metadata {
-    name = "${each.value.namespace}-${each.value.name}"
-    labels = {
-      "app.kubernetes.io/name" = "${each.value.namespace}-${each.value.name}"
-      "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
-    }
-  }
-  spec {
-    storage_class_name = kubernetes_storage_class.rke2_local_storage.metadata[0].name
-    capacity = {
-      storage = "500Gi"
-    }
-    access_modes = ["ReadWriteMany"]
-    persistent_volume_source {
-      nfs {
-        path   = each.value.path
-        server = kamatera_server.hasadna_nfs2.private_ips[0]
-      }
-    }
-  }
-}
-
 resource "kubernetes_persistent_volume_claim" "rke2_storage" {
   for_each = {for k, v in local.rke2_storage_flat : k => v if v.create_pvc && v.create_pv && v.node != "rook"}
-  depends_on = [kubernetes_persistent_volume.rke2_storage, null_resource.rke2_ensure_storage_namespaces, kubernetes_persistent_volume.rke2_storage_ref_nfs]
+  depends_on = [kubernetes_persistent_volume.rke2_storage, null_resource.rke2_ensure_storage_namespaces]
   provider = kubernetes.rke2
   wait_until_bound = false
   metadata {
@@ -690,51 +603,5 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_shared" {
       }
     }
     access_modes = ["ReadWriteMany"]
-  }
-}
-
-resource "null_resource" "rke2_storage_rsync_from_nfs_to_rook" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.rsync_from_nfs != false && v.node == "rook"}
-  depends_on = [
-    kubernetes_persistent_volume_claim.rke2_storage_rook_block,
-    kubernetes_persistent_volume_claim.rke2_storage_rook_shared,
-  ]
-  triggers = {
-    counter = each.value.counter
-    command = <<-EOF
-      set -euo pipefail
-      mkdir -p "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook"
-      while [ "$(ls "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook" | wc -l)" -gt 5 ]; do
-        echo "There are too many rsync processes running, waiting for some to finish..."
-        sleep 5
-      done
-      touch "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook/${each.key}"
-      SOURCE_PATH="/${local.rke2_storage_flat["${each.value.namespace}_${each.value.rsync_from_nfs}"].namespace_path}/${local.rke2_storage_flat["${each.value.namespace}_${each.value.rsync_from_nfs}"].path}"
-      bin/rke2_storage_rsync.sh "${each.value.namespace}" nfs "$SOURCE_PATH" "${each.value.name}"
-      rm "${path.root}/.temp/rke2_storage_rsync_from_nfs_to_rook/${each.key}"
-    EOF
-  }
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command = self.triggers.command
-  }
-}
-
-resource "null_resource" "rke2_storage_rsync_from_nfs_to_worker" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.rsync_from_nfs != false && v.node != "rook"}
-  depends_on = [
-    null_resource.rke2_storage,
-    null_resource.rke2_mount_workers_storage
-  ]
-  triggers = {
-    counter = each.value.counter
-    command = <<-EOF
-      set -euo pipefail
-      ssh hasadna-rke2-${each.value.node} rsync -az --delete --checksum "172.16.0.9:/export/${each.value.rsync_from_nfs}/" "${each.value.full_path}/"
-    EOF
-  }
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command = self.triggers.command
   }
 }

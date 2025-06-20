@@ -1,10 +1,9 @@
 # Storage
 
-We have 3 types of storage:
+We have 2 types of storage:
 
 * Rook Ceph - Uses Ceph cluster deployed on the Kubernetes cluster, recommended for most workloads
 * Local - Stored in dedicated disk on the worker nodes themselves, only for critical or large storage needs
-* NFS - Deprecated, should move to Ceph, Stored on a central NFS server
 
 Storage is defined in `modules/hasadna/rke2_storage.tf` at the top of the file under the `rke2_storage` local.
 See the comments there for a description of the configuration values.
@@ -13,7 +12,7 @@ If you add or change values, it will create / modify the storage after terraform
 If you delete items, it will not delete the storage, storage must be deleted manually.
 
 The storage configuration is also used for backup which is handled by a cronjob in each server.
-Backups are stored in AWS S3 using Koptic. It stores snapshots with retention periods, see `modules/hasadna/rke2_backup.tf` for more details.
+Backups are stored in AWS S3 using Kopia. It stores snapshots with retention periods, see `modules/hasadna/rke2_backup.tf` for more details.
 
 ## Using the data in Kubernetes Workloads
 
