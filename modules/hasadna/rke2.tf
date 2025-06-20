@@ -164,6 +164,22 @@ resource "null_resource" "rke2_install_controlplane1" {
   depends_on = [null_resource.rke2_prepare_nodes]
   triggers = {
     counter = 2
+    authn = <<-EOF
+      apiVersion: apiserver.config.k8s.io/v1beta1
+      kind: AuthenticationConfiguration
+      jwt:
+        - issuer:
+            url: "https://argocd.hasadna.org.il/api/dex"
+            audiences:
+              - kubectl
+          claimMappings:
+            username:
+              claim: preferred_username
+              prefix: argocddex_github_
+            groups:
+              claim: groups
+              prefix: argocddex_github_
+    EOF
     config = <<-EOF
       node-name: controlplane1
       node-ip: ${local.rke2_server_private_ip["controlplane1"]}
@@ -174,6 +190,8 @@ resource "null_resource" "rke2_install_controlplane1" {
         - ${local.rke2_server_private_ip["controlplane1"]}
         - ${local.rke2_server_public_ip["controlplane1"]}
       etcd-snapshot-retention: 14  # snapshot every 12 hours, total of 1 week
+      kube-apiserver-arg:
+        - "--authentication-config=/etc/rancher/rke2/authn/authn.yaml"
     EOF
     command = <<-EOF
       curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${local.rke2_version} sh - &&\
@@ -188,10 +206,13 @@ resource "null_resource" "rke2_install_controlplane1" {
   provisioner "local-exec" {
     command = <<-EOT
       ssh -o ProxyJump=hasadna-ssh-access-point -p ${var.hasadna_ssh_access_point_ssh_port} root@${local.rke2_server_private_ip["controlplane1"]} \
-        mkdir -p /etc/rancher/rke2 &&\
+        mkdir -p /etc/rancher/rke2/authn &&\
       echo "${self.triggers.config}" \
         | ssh -o ProxyJump=hasadna-ssh-access-point -p ${var.hasadna_ssh_access_point_ssh_port} root@${local.rke2_server_private_ip["controlplane1"]} \
           "cat > /etc/rancher/rke2/config.yaml" &&\
+      echo "${self.triggers.authn}" \
+        | ssh -o ProxyJump=hasadna-ssh-access-point -p ${var.hasadna_ssh_access_point_ssh_port} root@${local.rke2_server_private_ip["controlplane1"]} \
+          "cat > /etc/rancher/rke2/authn/authn.yaml" &&\
       ssh -o ProxyJump=hasadna-ssh-access-point -p ${var.hasadna_ssh_access_point_ssh_port} root@${local.rke2_server_private_ip["controlplane1"]} \
         "${self.triggers.command}"
     EOT

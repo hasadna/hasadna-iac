@@ -16,9 +16,11 @@ ARG PYTHON_VERSION=3.12
 RUN . /home/atlantis/.bash_env && uv python install ${PYTHON_VERSION}
 ARG KUBECTL_VERSION=v1.33.1
 ADD https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl /usr/local/bin/kubectl
+ARG PINNIPED_VERSION=v0.39.0
+ADD https://get.pinniped.dev/v0.39.0/pinniped-cli-linux-amd64 /usr/local/bin/pinniped
 USER root
-RUN chmod +x /usr/local/bin/kubectl
-RUN apk update && apk add bash-completion
+RUN chmod +x /usr/local/bin/kubectl /usr/local/bin/pinniped
+RUN apk update && apk add bash-completion jq
 USER atlantis
 COPY pyproject.toml uv.lock /home/atlantis/
 RUN cd /home/atlantis && . /home/atlantis/.bash_env && uv sync &&\

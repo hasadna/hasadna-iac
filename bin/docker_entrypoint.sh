@@ -9,6 +9,8 @@ trap 'echo "Cleaning up..."; rm -rf $TEMPDIR' EXIT
   . .bash_env
   python hasadna-iac/bin/docker_entrypoint.py "$@"
 )
-. $TEMPDIR/env
-cd /home/atlantis/hasadna-iac
-bash
+if [ "$1" == "shell" ]; then
+  . $TEMPDIR/env
+  cd /home/atlantis/hasadna-iac
+  bash
+fi

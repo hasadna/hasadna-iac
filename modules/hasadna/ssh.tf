@@ -118,6 +118,9 @@ locals {
           ProxyJump hasadna-ssh-access-point
     EOT
   ])
+  rke2_ssh_known_hosts = join("\n", [
+    for name, ip in local.rke2_server_private_ip : "ssh-keyscan -p ${var.hasadna_ssh_access_point_ssh_port} ${ip}"
+  ])
 }
 
 output "rke2_ssh_config" {
@@ -125,7 +128,7 @@ output "rke2_ssh_config" {
     Host hasadna-ssh-access-point
       HostName ${kamatera_server.hasadna_ssh_access_point.public_ips[0]}
       User root
-      Port 25766
+      Port ${var.hasadna_ssh_access_point_ssh_port}
 
     Host hasadna-proxy1
       HostName ${local.hasadna_proxy1_private_ip}
@@ -139,4 +142,23 @@ output "rke2_ssh_config" {
 
     ${local.rke2_ssh_config_servers}
   EOF
+}
+
+resource "null_resource" "rke2_ssh_known_hosts" {
+  triggers = {
+    command = <<-EOT
+      set -euo pipefail
+      ssh-keyscan -p ${var.hasadna_ssh_access_point_ssh_port} ${kamatera_server.hasadna_ssh_access_point.public_ips[0]} > .rke2_ssh_known_hosts
+      ssh -p ${var.hasadna_ssh_access_point_ssh_port} -o UserKnownHostsFile=.rke2_ssh_known_hosts root@${kamatera_server.hasadna_ssh_access_point.public_ips[0]} "
+        ssh-keyscan ${local.hasadna_proxy1_private_ip}
+        ${local.rke2_ssh_known_hosts}
+      " >> .rke2_ssh_known_hosts
+      vault kv put kv/Projects/iac/ssh_rke2_known_hosts known_hosts=@.rke2_ssh_known_hosts
+      rm .rke2_ssh_known_hosts
+    EOT
+  }
+  provisioner "local-exec" {
+    command = self.triggers.command
+    interpreter = ["bash", "-c"]
+  }
 }
