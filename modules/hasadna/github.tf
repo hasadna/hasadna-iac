@@ -1,12 +1,17 @@
 locals {
-  default_repo_secret_name = "HASADNA_K8S_DEPLOY_KEY"
   hasadna_k8s_deploy_keys = {
-    "open-pension": {}
-  }
-  hasadna_k8s_deploy_keys_repo_secrets = {
-    "open-pension-ng": {
-      "key": "open-pension",
-      "secret": local.default_repo_secret_name
+    # "name of deploy key in hasadna-k8s repo": {
+    #   "repos": {
+    #       "name of github repo in hasadna org": {}
+    "open-pension": {
+      "repos": {
+        "open-pension-ng": {}
+      }
+    }
+    "open-bus-rides-history": {
+      "repos": {
+        "open-bus-rides-history": {}
+      }
     }
   }
 }
@@ -25,10 +30,22 @@ resource "github_repository_deploy_key" "hasadna_k8s" {
 }
 
 resource "github_actions_secret" "hasadna_k8s_deploy_keys" {
-  for_each = local.hasadna_k8s_deploy_keys_repo_secrets
-  repository = each.key
+  for_each = {
+    for d in flatten(
+      [
+        for deploy_key_name, deploy_key_config in local.hasadna_k8s_deploy_keys: [
+          for repo_name, repo_config in deploy_key_config["repos"] : {
+            secret = lookup(repo_config, "secret_name", "HASADNA_K8S_DEPLOY_KEY")
+            repo = repo_name
+            deploy_key = deploy_key_name
+          }
+        ]
+      ]
+    ) : "${d.deploy_key}_${d.repo}" => d
+  }
+  repository = each.value["repo"]
   secret_name = each.value["secret"]
-  plaintext_value = tls_private_key.hasadna_k8s_deploy_keys[each.value["key"]].private_key_pem
+  plaintext_value = tls_private_key.hasadna_k8s_deploy_keys[each.value["deploy_key"]].private_key_pem
 }
 
 # hasadna-k8s github app was created manually in the GitHub UI
