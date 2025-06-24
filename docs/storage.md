@@ -18,7 +18,14 @@ Backups are stored in AWS S3 using Kopia. It stores snapshots with retention per
 
 The storage configurations by default create a `PersistentVolume` and a `PersistentVolumeClaim` for each storage item in the relevant namespace.
 
-## Moving data between servers
+## Advanced
+
+### Interacting with the storage cluster
+
+Exec into deployment `rook-ceph-toolbox` in the `rook-ceph` namespace to interact with the storage cluster.
+You can run `ceph` commands connected to the cluster.
+
+### Moving data between servers
 
 If you want to move data from one storage server to another, you can use `rsync` over SSH
 
@@ -32,7 +39,7 @@ cat ~/.ssh/id_rsa.pub
 rsync -az --delete --checksum 172.16.0.9:/export/SOURCE_PATH/ /mnt/storage/TARGET_PATH/
 ```
 
-## Moving data to Rook storage
+### Moving data to Rook storage
 
 Example:
 
@@ -41,7 +48,7 @@ Example:
 bin/rke2_storage_rsync.sh argo       nfs          /argo/postgres   postgres2
 ```
 
-## Disk Resize
+### Disk Resize
 
 * Change the disk size in Kamatera Console (without reboot)
 * Update the size in rke2.tf to match

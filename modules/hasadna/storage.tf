@@ -95,6 +95,10 @@ locals {
         node = "rook"
         rook_storage_request_gi = 1
       }
+      publicdb = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
     }
     budgetkey = {
       postgres = {

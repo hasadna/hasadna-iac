@@ -160,3 +160,13 @@ resource "null_resource" "kopia_init_node" {
         command = self.triggers.command
     }
 }
+
+resource "statuscake_heartbeat_check" "k8s_ceph_backups" {
+  name = "hasadna-k8s-ceph-backups"
+  period = 60 * 60 * 24 * 2  # if backup doesn't ping this check for 2 days, it will be considered failed
+  contact_groups = ["35660"]  # DevOps contact group
+}
+
+output "k8s_ceph_backup_heartbeat_url" {
+  value = statuscake_heartbeat_check.k8s_ceph_backups.check_url
+}

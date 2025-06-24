@@ -104,6 +104,14 @@ resource "cloudflare_dns_record" "rke2_ingress" {
   ttl = 1
 }
 
+resource "cloudflare_dns_record" "legacy_ingress" {
+  zone_id = data.cloudflare_zone.hasadna_org_il.zone_id
+  name    = "ingress.${data.cloudflare_zone.hasadna_org_il.name}"
+  type    = "CNAME"
+  content   = "${local.rke2_ingress_name}.${data.cloudflare_zone.hasadna_org_il.name}"
+  ttl = 1
+}
+
 output "rke2_catchall_hostname" {
   value = replace("rke2.${data.cloudflare_zone.hasadna_org_il.name}", "*.", "")
 }

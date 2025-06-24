@@ -6,5 +6,6 @@ locals {
     "open-bus-siri-requester",
     "open-bus-webmon",
     "open-bus-map-search",
+    "open-bus-rides-history",
   ]
 }
