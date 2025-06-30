@@ -13,6 +13,11 @@ locals {
         "open-bus-rides-history": {}
       }
     }
+    "socialsocialpro": {
+      "repos": {
+        "socialsocialpro": {}
+      }
+    }
   }
 }
 

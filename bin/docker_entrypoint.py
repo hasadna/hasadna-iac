@@ -142,6 +142,8 @@ def main_initialize():
     if not github_username:
         github_username = input("GitHub User Name: ")
     data = vault_read(vault_addr, vault_token, f'Projects/iac/encrypted_user_data/{github_username}/public_key')
+    print("Initializing public/private key pair for encryption")
+    print("These keys are used to encrypt your personal data in Vault, so only you can access it")
     if data is None:
         print('No public key found, generating a new key pair')
         private_key = PrivateKey.generate()
