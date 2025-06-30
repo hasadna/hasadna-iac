@@ -7,13 +7,13 @@ This repo contains Terraform configurations for managing Hasadna infrastructure 
 Run the interactivate initialization, it will prompt for the required values, it is safe to run multiple times to reinitialize or update
 
 ```
-docker run --pull always -it ghcr.io/hasadna/hasadna-iac/atlantis:latest initialize
+bin/docker_run.sh initialize
 ```
 
 Start a shell with configured terraform environment, it will ask for required values and perform interactive login:
 
 ```
-docker run --pull always --env-file /etc/hasadna/iac.env -it --network host -v `pwd`:/home/atlantis/hasadna-iac ghcr.io/hasadna/hasadna-iac/atlantis:latest shell
+bin/docker_run.sh shell
 ```
 
 Once inside the shell, run Terraform commands:
