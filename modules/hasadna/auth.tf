@@ -10,6 +10,28 @@ locals {
   cluster_admins = split(",", data.vault_kv_secret_v2.cluster-admins.data["cluster-admins"])
 }
 
+resource "github_team_members" "kubectl_readonly_admins" {
+  team_id = "kubectl-readonly-admins"
+  dynamic "members" {
+    for_each = local.cluster_admins
+    content {
+      username = members.value
+      role = "maintainer"
+    }
+  }
+}
+
+resource "github_team_members" "argocd_admins" {
+  team_id = "argocd-admins"
+  dynamic "members" {
+    for_each = local.cluster_admins
+    content {
+      username = members.value
+      role = "maintainer"
+    }
+  }
+}
+
 resource "kubernetes_cluster_role_binding" "cluster-admins" {
   provider = kubernetes.rke2
   metadata {
@@ -20,13 +42,10 @@ resource "kubernetes_cluster_role_binding" "cluster-admins" {
     kind = "ClusterRole"
     name = "cluster-admin"
   }
-  dynamic "subject" {
-    for_each = toset(local.cluster_admins)
-    content {
-      kind = "User"
-      name = subject.value
-      api_group = "rbac.authorization.k8s.io"
-    }
+  subject {
+    api_group = "rbac.authorization.k8s.io"
+    kind = "Group"
+    name = "argocddex_github_hasadna:argocd-admins"
   }
 }
 
@@ -68,13 +87,10 @@ resource "kubernetes_cluster_role_binding" "cluster-admins-readonly" {
     kind = "ClusterRole"
     name = kubernetes_cluster_role.cluster-admin-readonly.metadata[0].name
   }
-  dynamic "subject" {
-    for_each = toset(local.cluster_admins)
-    content {
-      kind = "User"
-      name = subject.value
-      api_group = "rbac.authorization.k8s.io"
-    }
+  subject {
+    api_group = "rbac.authorization.k8s.io"
+    kind = "Group"
+    name = "argocddex_github_hasadna:kubectl-readonly-admins"
   }
 }
 
