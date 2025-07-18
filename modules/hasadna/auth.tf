@@ -115,7 +115,7 @@ resource "null_resource" "pinniped_kubeconfig" {
               for more details
             provideClusterInfo: true' > .kubeconfig-pinniped.yaml
       vault kv put kv/Projects/k8s/auth-pinniped-kubeconfig kubeconfig=@.kubeconfig-pinniped.yaml
-      rm .kubeconfig-pinniped.yaml .kubeconfig-pinniped-readonly.yaml
+      rm .kubeconfig-pinniped.yaml
     EOT
   }
   provisioner "local-exec" {
