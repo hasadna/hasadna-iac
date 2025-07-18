@@ -9,6 +9,8 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDZmytOYF/XMbF8x5/M+TUEHucU0SdYOw2hVqiguc+y
 EOF
 }
 
+# ssh access point root password is saved in vault under `Projects/iac/ssh_access_point_root_password`
+
 # TODO: upgrade
 resource "kamatera_server" "hasadna_ssh_access_point" {
   name = "hasadna-ssh-access-point"
