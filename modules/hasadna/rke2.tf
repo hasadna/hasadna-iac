@@ -15,7 +15,7 @@ locals {
       type = "critical"
       cpu_cores = 8
       ram_mb = 16384
-      disk_sizes_gb = [100, 500]  # the extra disk is used directly by Ceph
+      disk_sizes_gb = [100, 1000]  # the extra disk is used directly by Ceph
       ingress = false
       storage = false
     }
