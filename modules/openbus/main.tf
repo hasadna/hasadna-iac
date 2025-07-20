@@ -6,5 +6,8 @@ terraform {
     cloudflare = {
       source = "cloudflare/cloudflare"
     }
+    statuscake = {
+      source = "StatusCakeDev/statuscake"
+    }
   }
 }

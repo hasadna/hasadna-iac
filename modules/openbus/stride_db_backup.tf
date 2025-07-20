@@ -13,4 +13,18 @@
 #echo `date +"%Y-%m-%d %H:%M"` copying backup to S3 &&\
 #/usr/local/bin/aws s3 cp --quiet ./stride_db.sql.gz s3://${BUCKET_NAME}/stride_db.sql.gz &&\
 #rm ./stride_db.sql.gz &&\
+#echo `date +"%Y-%m-%d %H:%M"` sending heartbeat to StatusCake
+#curl $(terraform output openbus_stride_db_backup_check_url)
+#echo `date +"%Y-%m-%d %H:%M"` heartbeat sent to StatusCake
 #echo `date +"%Y-%m-%d %H:%M"` Great Success!
+
+
+resource "statuscake_heartbeat_check" "stride_db_backup" {
+  name = "stride-db-backup"
+  period = 60 * 60 * 24 * 2  # every 2 days
+  contact_groups = ["35660"]  # DevOps contact group
+}
+
+output "stride_db_backup_check_url" {
+  value = statuscake_heartbeat_check.stride_db_backup.check_url
+}
