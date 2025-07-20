@@ -4,7 +4,6 @@ locals {
     "open-bus-airflow",
     "open-bus-gtfs-data",
     "open-bus-siri-requester",
-    "open-bus-webmon",
     "open-bus-map-search",
     "open-bus-rides-history",
   ]
