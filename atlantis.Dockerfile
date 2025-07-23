@@ -20,7 +20,7 @@ ARG PINNIPED_VERSION=v0.39.0
 ADD https://get.pinniped.dev/v0.39.0/pinniped-cli-linux-amd64 /usr/local/bin/pinniped
 USER root
 RUN chmod +x /usr/local/bin/kubectl /usr/local/bin/pinniped
-RUN apk update && apk add bash-completion jq
+RUN apk update && apk add bash-completion jq sshpass
 USER atlantis
 COPY pyproject.toml uv.lock /home/atlantis/
 RUN cd /home/atlantis && . /home/atlantis/.bash_env && uv sync &&\
