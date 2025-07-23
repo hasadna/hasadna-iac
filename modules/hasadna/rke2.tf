@@ -43,6 +43,14 @@ locals {
       ingress = true
       storage = false
     }
+    worker4 = {
+      type = "worker"
+      cpu_cores = 24
+      ram_mb = 65536
+      disk_sizes_gb = [100]
+      ingress = false
+      storage = false
+    }
   }
 }
 
