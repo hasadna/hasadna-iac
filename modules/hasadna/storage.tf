@@ -50,37 +50,17 @@ locals {
       terraformstatedb = {
         node = "worker1"
       }
-      labelstudio2 = {
-        node = "rook"
-        rook_storage_request_gi = 5
-      }
-      labelstudio-postgres2  = {
-        node = "rook"
-        rook_storage_request_gi = 1
-      }
       rke2-snapshots = {
         node = "controlplane1"
         create_pv = false
         full_path = "/var/lib/rancher/rke2/server/db/snapshots"
       }
-      atlantis-data = {
-        node = "rook"
-        rook_storage_request_gi = 5
-      }
     }
     oknesset = {
-      data = {
-        node = "worker1"
-        create_pv = false
-      }
-      pipelines = {
-        ref_existing = "data"
-      }
-      nginx = {
-        ref_existing = "data"
-      }
-      airflow-scheduler = {
-        ref_existing = "data"
+      data2 = {
+        node = "rook"
+        rook_shared = true
+        rook_storage_request_gi = 150
       }
       airflow-db2 = {
         node = "rook"
