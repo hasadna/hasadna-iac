@@ -10,6 +10,11 @@ DEBUG="${5:-}"
 
 if [ "${SOURCE_TYPE}" == "nfs" ]; then
   SOURCE_VOLUME_YAML='nfs: {server: 172.16.0.9, path: '${SOURCE_PATH}'}'
+elif [ "${SOURCE_TYPE}" == "pvc" ]; then
+  SOURCE_VOLUME_YAML='persistentVolumeClaim: {claimName: '${SOURCE_PATH}'}'
+else
+  echo "Unsupported source type: ${SOURCE_TYPE}"
+  exit 1
 fi
 
 if [ "${DEBUG}" == "" ]; then

@@ -41,11 +41,18 @@ rsync -az --delete --checksum 172.16.0.9:/export/SOURCE_PATH/ /mnt/storage/TARGE
 
 ### Moving data to Rook storage
 
-Example:
+from NFS to Rook:
 
 ```
 #                         NAMESPACE  SOURCE_TYPE  SOURCE_PATH      TARGET_PVC
 bin/rke2_storage_rsync.sh argo       nfs          /argo/postgres   postgres2
+```
+
+From PVC to Rook:
+
+```
+#                         NAMESPACE  SOURCE_TYPE  PVC_NAME  TARGET_PVC
+bin/rke2_storage_rsync.sh argo       pvc          my-pvc    my-pvc2
 ```
 
 ### Disk Resize

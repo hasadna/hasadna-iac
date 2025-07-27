@@ -158,15 +158,10 @@ locals {
       }
     }
     openbus = {
-      gtfs = {
-        node = "worker2"
-        create_pv = false
-      }
-      gtfs-nginx = {
-        ref_existing = "gtfs"
-      }
-      airflow-scheduler = {
-        ref_existing = "gtfs"
+      gtfs3 = {
+        node = "rook"
+        rook_shared = true
+        rook_storage_request_gi = 50
       }
       airflow-db2 = {
         node = "rook"
