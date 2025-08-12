@@ -342,6 +342,12 @@ locals {
         rook_storage_request_gi = 5
       }
     }
+    meirim = {
+      db = {
+        node = "rook"
+        rook_storage_request_gi = 10
+      }
+    }
   }
 }
 
