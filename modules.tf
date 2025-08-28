@@ -7,6 +7,11 @@ module "hasadna" {
   rke2_kubeconfig_path = var.rke2_kubeconfig_path
 }
 
+provider "grafana" {
+  url = module.hasadna.grafana_terraform_admin.url
+  auth = module.hasadna.grafana_terraform_admin.auth
+}
+
 module "openbus" {
   source = "./modules/openbus"
   hasadna_ssh_access_point_provision = module.hasadna.hasadna_ssh_access_point_provision
@@ -20,6 +25,9 @@ module "openbus" {
 
 module "srm" {
   source = "./modules/srm"
+  providers = {
+    grafana = grafana
+  }
 }
 
 module "datacity" {

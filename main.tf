@@ -30,6 +30,9 @@ terraform {
       source = "StatusCakeDev/statuscake"
       version = "2.2.2"
     }
+    grafana = {
+      source  = "grafana/grafana"
+    }
   }
 }
 
