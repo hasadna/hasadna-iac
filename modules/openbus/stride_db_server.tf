@@ -79,3 +79,26 @@ EOF
 #   LimitSTACK=33554432
 # nano /etc/postgresql/14/main/postgresql.conf
 #   max_stack_depth = 16MB
+
+## Add Swap
+# fallocate -l 32G /swapfile
+# chmod 600 /swapfile
+# mkswap /swapfile
+# echo '/swapfile none swap sw 0 0' >> /etc/fstab
+# swapon -a
+# swapon --show
+# free -h
+
+## enable query logging
+# su -l postgres
+# psql
+# ALTER SYSTEM SET logging_collector = on;
+# ALTER SYSTEM SET log_destination = 'csvlog';
+# ALTER SYSTEM SET log_line_prefix = '%m [%p] user=%u db=%d app=%a client=%r ';
+# ALTER SYSTEM SET log_connections = on;
+# ALTER SYSTEM SET log_disconnections = on;
+# ALTER SYSTEM SET log_min_duration_statement = '10s';
+# ALTER SYSTEM SET log_rotation_age = '14d';
+# ALTER SYSTEM SET log_rotation_size = '2000MB';
+# ALTER SYSTEM SET log_truncate_on_rotation = on;
+# systemctl restart postgresql
