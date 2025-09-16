@@ -21,6 +21,9 @@ terraform {
     statuscake = {
       source = "StatusCakeDev/statuscake"
     }
+    vault = {
+      source  = "hashicorp/vault"
+    }
   }
 }
 

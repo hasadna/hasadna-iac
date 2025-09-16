@@ -30,6 +30,11 @@ resource "statuscake_uptime_check" "datasets_count" {
         validate_ssl = true
         follow_redirects = true
         timeout = 40
+        content_matchers {
+            content         = "\"count\": 0"
+            include_headers = false
+            matcher         = "NOT_CONTAINS_STRING"
+        }
     }
     monitored_resource {
         address = "${each.value.url}/dataset"
