@@ -69,7 +69,7 @@ locals {
       airflow-home2 = {
         node = "rook"
         rook_shared = true
-        rook_storage_request_gi = 10
+        rook_storage_request_gi = 20
       }
       site-db2 = {
         node = "rook"
