@@ -4,8 +4,14 @@ set -euo pipefail
 
 cd /var/lib/postgresql
 if [ -f ./stride_db.pid ]; then
-  echo found existing stride_db.pid file, will not run
-  exit 0
+  PID=$(cat ./stride_db.pid)
+  if ps -p $PID > /dev/null; then
+    echo stride_db backup process already running with PID $PID, will not run
+    exit 0
+  else
+    echo stale stride_db.pid file found, removing
+    rm ./stride_db.pid
+  fi
 fi
 echo $$ > ./stride_db.pid
 echo `date +"%Y-%m-%d %H:%M"` creating stride_db backup

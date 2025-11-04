@@ -7,7 +7,6 @@
 #
 # copy stride_db_backup.sh to the server at /var/lib/postgresql/stride-backup.sh
 
-
 resource "statuscake_heartbeat_check" "stride_db_backup" {
   name = "stride-db-backup"
   period = 60 * 60 * 24 * 2  # every 2 days
@@ -17,3 +16,8 @@ resource "statuscake_heartbeat_check" "stride_db_backup" {
 output "stride_db_backup_check_url" {
   value = statuscake_heartbeat_check.stride_db_backup.check_url
 }
+
+# Get AWS secrets from `siri-requester` secret and set in file `/var/lib/postgresql/stride-backup.env`:
+# export AWS_ACCESS_KEY_ID=
+# export AWS_SECRET_ACCESS_KEY=
+# export BUCKET_NAME=

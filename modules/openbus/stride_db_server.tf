@@ -6,7 +6,7 @@ resource "kamatera_server" "hasadna_stride_db" {
   ram_mb = 32768
   disk_sizes_gb = [3000]
   billing_cycle = "monthly"
-  image_id = "ubuntu"
+  image_id = "ubuntu"  # server was created with postgresql image
 
   network {
     name = "wan"
@@ -69,6 +69,28 @@ EOF
     ]
   }
 }
+
+# The server root password is in hasadna's vault under `Projects/OBus/stride-db/server-root-password`
+
+# apt update
+# wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+# echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/postgresql-pgdg.list > /dev/null
+# apt update
+# apt remove postgresql-12
+# apt install postgresl-14
+
+# Edit `/etc/postgresql/14/main/postgresql.conf`:
+# Set `listen_addresses = '*'`
+# Set `port = 5432`
+
+# Edit `/etc/postgresql/14/main/pg_hba.conf`:
+# Set ipv4 / ipv6 addresses to `0.0.0.0/0` and `::/0`
+
+# Generate a password for the DB using the following snippet:
+# python3 -c 'import secrets; print(secrets.token_hex(16))'
+# Set the password/username in Hasadna's vault under `Projects/OBus/stride-db` / (`db-admin-password` / `db-admin-user`)
+# Change the postgres user password:
+# ALTER USER postgres WITH PASSWORD '*******';
 
 ## increase stack depth
 # nano /etc/security/limits.conf
