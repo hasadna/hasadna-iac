@@ -1,13 +1,16 @@
 terraform {
   required_providers {
     kubernetes = {
-      source  = "hashicorp/kubernetes"
+      source = "hashicorp/kubernetes"
     }
     vault = {
-      source  = "hashicorp/vault"
+      source = "hashicorp/vault"
     }
     github = {
-      source  = "integrations/github"
+      source = "integrations/github"
+    }
+    statuscake = {
+      source  = "StatusCakeDev/statuscake"
     }
   }
 }
