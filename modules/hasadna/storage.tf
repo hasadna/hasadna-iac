@@ -341,6 +341,10 @@ locals {
         node = "rook"
         rook_storage_request_gi = 5
       }
+      budgetism = {
+        node = "rook"
+        rook_storage_request_gi = 5
+      }
     }
     meirim = {
       db = {
