@@ -8,7 +8,8 @@ import subprocess
 CLEANUP_OLD_LOGS_PATHS = [
     "airflow-home/logs",
     "ckan-dgp-logs/airflow-logs",
-    "importer/geodata/logs"
+    "importer/geodata/logs",
+    "airflow:logs"
 ]
 
 
@@ -26,7 +27,7 @@ def check_rke2_certificates():
 
 def cleanup_old_logs():
     cleaned_paths = 0
-    for base_path in ["/export", "/mnt/storage"]:
+    for base_path in ["/export", "/mnt/storage", "/var/lib/kubelet/plugins/kubernetes.io/csi/rook-ceph.cephfs.csi.ceph.com"]:
         if os.path.exists(base_path):
             print(f"Cleaning up old logs under {base_path}...")
             subprocess.check_call([
