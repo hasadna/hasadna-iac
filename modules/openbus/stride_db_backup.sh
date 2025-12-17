@@ -15,6 +15,10 @@ if [ -f ./stride_db.pid ]; then
 fi
 echo $$ > ./stride_db.pid
 echo `date +"%Y-%m-%d %H:%M"` creating stride_db backup
+if [ -f ./stride_db.sql.zst ]; then
+  echo previous backup file found, removing
+  rm ./stride_db.sql.zst
+fi
 pg_dump -n public --no-privileges | zstd -19 -o ./stride_db.sql.zst
 du -h ./stride_db.sql.zst
 . /var/lib/postgresql/stride-backup.env
