@@ -14,7 +14,12 @@ locals {
       name     = "budgetkey"
       url      = "https://next.obudget.org/"
       disabled = false
-    }
+    },
+    {
+      name     = "digital-forest-cards"
+      url      = "https://cards.digital-forest.org.il/"
+      disabled = false
+    },
   ]
 }
 
