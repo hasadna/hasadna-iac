@@ -101,6 +101,8 @@ EOF
 #   LimitSTACK=33554432
 # nano /etc/postgresql/14/main/postgresql.conf
 #   max_stack_depth = 16MB
+#   shared_buffers = 4GB
+#   effective_cache_size = 24GB
 
 ## Add Swap
 # fallocate -l 32G /swapfile
