@@ -20,6 +20,11 @@ locals {
       url      = "https://cards.digital-forest.org.il/"
       disabled = false
     },
+    {
+      name = "digital-forest-ugc"
+      url = "https://rgw.rke2.hasadna.org.il/digital-forest-ugc/healthcheck.txt"
+      disabled = false
+    }
   ]
 }
 
