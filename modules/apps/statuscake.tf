@@ -4,26 +4,31 @@ locals {
       name     = "budgetism"
       url      = "https://act.obudget.org"
       disabled = false
+      extra_contact_groups = [356285]
     },
     {
       name     = "socialpro"
       url      = "https://www.socialpro.org.il/"
       disabled = false
+      extra_contact_groups = [356285]
     },
     {
       name     = "budgetkey"
       url      = "https://next.obudget.org/"
       disabled = false
+      extra_contact_groups = [356285]
     },
     {
       name     = "digital-forest-cards"
       url      = "https://cards.digital-forest.org.il/"
       disabled = false
+      extra_contact_groups = []
     },
     {
       name = "digital-forest-ugc"
       url = "https://rgw.rke2.hasadna.org.il/digital-forest-ugc/healthcheck.txt"
       disabled = false
+      extra_contact_groups = []
     }
   ]
 }
@@ -45,5 +50,5 @@ resource "statuscake_uptime_check" "sites" {
   monitored_resource {
     address = each.value.url
   }
-  contact_groups = [234311]
+  contact_groups = concat([234311], each.value.extra_contact_groups)
 }
