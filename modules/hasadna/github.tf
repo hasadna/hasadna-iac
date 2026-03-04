@@ -18,6 +18,11 @@ locals {
         "socialsocialpro": {}
       }
     }
+    "meirim": {
+      "repos": {
+        "meirim": {}
+      }
+    }
   }
 }
 
