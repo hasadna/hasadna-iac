@@ -23,6 +23,11 @@ locals {
         "meirim": {}
       }
     }
+    "datacity": {
+      "repos": {
+        "datacity-ckan-dgp": {}
+      }
+    }
   }
 }
 
