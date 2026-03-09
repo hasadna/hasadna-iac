@@ -11,3 +11,8 @@ output "rke2_ssh_config" {
 output "openbus_stride_db_backup_check_url" {
   value = module.openbus.stride_db_backup_check_url
 }
+
+output "hasadna_proxy1_public_ip" {
+  value = module.hasadna.hasadna_proxy1_public_ip
+  sensitive = true
+}
