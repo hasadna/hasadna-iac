@@ -2,6 +2,21 @@
 # was setup manually, can ssh to it's private IP from hasadna-ssh-access-point server
 # Server public IP is allowlisted in Israel Government so it can be used as a proxy for scraping
 
+# following namespaces will have configmap hasadna-proxy1 with HTTP_PROXY and HTTPS_PROXY env vars
+# add it to deployment specs that need to use the proxy:
+# envFrom:
+# - configMapRef:
+#     name: hasadna-proxy1
+
+locals {
+  hasadna_proxy1_namespaces = [
+    "openbus",
+    "oknesset",
+    "meirim"
+  ]
+}
+
+
 data "vault_kv_secret_v2" "proxy" {
   mount = "/kv"
   name = "Projects/iac/proxy"
@@ -30,7 +45,7 @@ resource "null_resource" "proxy1_squid" {
 
 resource "kubernetes_config_map" "proxy1_configmap" {
   provider = kubernetes.rke2
-  for_each = toset(["openbus", "oknesset"])
+  for_each = toset(local.hasadna_proxy1_namespaces)
   metadata {
     name = "hasadna-proxy1"
     namespace = each.key
