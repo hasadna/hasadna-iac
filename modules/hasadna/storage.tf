@@ -208,9 +208,8 @@ locals {
         node = "rook"
         rook_storage_request_gi = 5
       }
-      redis2 = {
-        node = "rook"
-        rook_storage_request_gi = 5
+      redis3 = {
+        node = "worker1"
       }
     }
     betaknesset = {
