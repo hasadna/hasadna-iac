@@ -19,6 +19,14 @@ locals {
       ingress = false
       storage = false
     }
+    critical2 = {
+      type = "critical"
+      cpu_cores = 8
+      ram_mb = 16384
+      disk_sizes_gb = [100, 1000]  # the extra disk is used directly by Ceph
+      ingress = false
+      storage = false
+    }
     worker1 = {
       type = "worker"
       cpu_cores = 24
@@ -156,7 +164,7 @@ resource "null_resource" "rke2_prepare_nodes" {
       sysctl --system
       rm -f /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf
       systemctl daemon-reload
-      systemctl restart systemd-networkd-wait-online.service
+      systemctl restart systemd-networkd-wait-online.service || true
       apt update && apt install -y nfs-common
       if ! [ -e /root/.ssh/id_rsa ]; then ssh-keygen -t rsa -b 4096 -N '' -f /root/.ssh/id_rsa; fi
       echo 'export PATH="/var/lib/rancher/rke2/bin/:$PATH"' > /etc/profile.d/00-hasadna.sh
