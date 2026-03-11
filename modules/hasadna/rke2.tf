@@ -9,6 +9,7 @@ locals {
       disk_sizes_gb = [100]
       ingress = false
       storage = false
+      ceph_storage = false
     }
     # used for critical non application workloads only
     critical1 = {
@@ -18,6 +19,7 @@ locals {
       disk_sizes_gb = [100, 1000]  # the extra disk is used directly by Ceph
       ingress = false
       storage = false
+      ceph_storage = "/dev/sdb"
     }
     critical2 = {
       type = "critical"
@@ -26,6 +28,7 @@ locals {
       disk_sizes_gb = [100, 1000]  # the extra disk is used directly by Ceph
       ingress = false
       storage = false
+      ceph_storage = "/dev/sdb"
     }
     worker1 = {
       type = "worker"
@@ -34,6 +37,7 @@ locals {
       disk_sizes_gb = [100, 500]
       ingress = true
       storage = "/dev/sdb1"
+      ceph_storage = false
     }
     worker2 = {
       type = "worker"
@@ -42,6 +46,7 @@ locals {
       disk_sizes_gb = [100, 700]
       ingress = true
       storage = "/dev/sdb1"
+      ceph_storage = false
     }
     worker3 = {
       type = "worker"
@@ -50,6 +55,7 @@ locals {
       disk_sizes_gb = [100]
       ingress = true
       storage = false
+      ceph_storage = false
     }
     worker4 = {
       type = "worker"
@@ -58,6 +64,7 @@ locals {
       disk_sizes_gb = [100]
       ingress = false
       storage = false
+      ceph_storage = false
     }
     worker5 = {
       type = "worker"
@@ -66,6 +73,7 @@ locals {
       disk_sizes_gb = [100]
       ingress = false
       storage = false
+      ceph_storage = false
     }
   }
 }

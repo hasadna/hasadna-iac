@@ -379,6 +379,28 @@ resource "null_resource" "rke2_mount_workers_storage" {
   }
 }
 
+resource "null_resource" "rke2_prepare_ceph_storage" {
+  for_each = {
+    for name, server in local.rke2_servers : name => server if server.ceph_storage != false
+  }
+  depends_on = [null_resource.rke2_install_workers]
+  triggers = {
+    counter = 1
+    command = <<-EOF
+      ssh hasadna-rke2-${each.key} '
+        PART=$(lsblk ${each.value.ceph_storage} --output PATH,TYPE | grep " part" | cut -d" " -f1)
+        if ! [ -z "$PART" ]; then
+          echo existing partition found, you have to manually remove it
+          echo by running:  wipefs -a ${each.value.ceph_storage}
+        fi
+      '
+    EOF
+  }
+  provisioner "local-exec" {
+    command = self.triggers.command
+  }
+}
+
 locals {
   rke2_storage_flat = {
     for s in flatten(
