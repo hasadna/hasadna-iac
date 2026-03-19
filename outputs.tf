@@ -16,3 +16,8 @@ output "hasadna_proxy1_public_ip" {
   value = module.hasadna.hasadna_proxy1_public_ip
   sensitive = true
 }
+
+output "oknesset_publicdb_readonly_users" {
+  value = module.apps.oknesset_publicdb_readonly_users
+  sensitive = true
+}
