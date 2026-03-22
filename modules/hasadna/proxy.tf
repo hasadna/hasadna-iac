@@ -17,7 +17,7 @@ locals {
 
   # for testing, can temporarily enable public IP for the proxy
   # remember to disable it after testing, to avoid unnecessary exposure
-  hasadna_proxy1_enable_public = false
+  hasadna_proxy1_enable_public = true
 
   hasadna_proxy1_private_ip = data.vault_kv_secret_v2.proxy.data["hasadna-proxy1-private-ip"]
   hasadna_proxy1_public_ip = data.vault_kv_secret_v2.proxy.data["hasadna-proxy1-public-ip"]
@@ -33,13 +33,34 @@ data "vault_kv_secret_v2" "proxy" {
   name = "Projects/iac/proxy"
 }
 
+# /etc/squid/passwords was created manually:
+# apt-get update && apt-get install -y apache2-utils
+# user / password are in vault
+# htpasswd -bc /etc/squid/passwords USER PASSWORD
+
 resource "null_resource" "proxy1_squid" {
   triggers = {
     command = <<-EOT
       ssh hasadna-proxy1 "
         set -euo pipefail
+        mkdir -p /etc/squid/conf.d
+        cat >/etc/squid/conf.d/20-auth-external.conf <<-EOF
+auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwords
+auth_param basic realm proxy
+auth_param basic children 5
+auth_param basic credentialsttl 1 minute
+auth_param basic casesensitive on
+acl authenticated proxy_auth REQUIRED
+http_access allow localnet
+http_access allow authenticated
+EOF
         docker rm -f squid || true
-        docker run -d --name squid --restart unless-stopped -p ${local.hasadna_proxy1_docker_port_host}:9999:3128 ubuntu/squid:5.2-22.04_beta
+        docker run -d --name squid \
+          --restart unless-stopped \
+          -v /etc/squid/conf.d/20-auth-external.conf:/etc/squid/conf.d/20-auth-external.conf:ro \
+          -v /etc/squid/passwords:/etc/squid/passwords:ro \
+          -p ${local.hasadna_proxy1_docker_port_host}:9999:3128 \
+          ubuntu/squid:5.2-22.04_beta
       "
     EOT
   }
