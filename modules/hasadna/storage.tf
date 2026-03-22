@@ -60,7 +60,7 @@ locals {
       data2 = {
         node = "rook"
         rook_shared = true
-        rook_storage_request_gi = 150
+        rook_storage_request_gi = 250
       }
       airflow-db2 = {
         node = "rook"
@@ -69,7 +69,7 @@ locals {
       airflow-home2 = {
         node = "rook"
         rook_shared = true
-        rook_storage_request_gi = 20
+        rook_storage_request_gi = 50
       }
       site-db2 = {
         node = "rook"
