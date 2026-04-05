@@ -8,6 +8,8 @@ locals {
       default_admin_email = var.default_admin_email
       rke2_catchall_hostname = module.hasadna.rke2_catchall_hostname
       ceph_backups_heartbeat_url = module.hasadna.k8s_ceph_backup_heartbeat_url
+      datacity_ckan_load_balancer_ip = module.datacity.google_load_balancer_ip
+      datacity_ckan_all_hostnames_json = jsonencode(module.datacity.ckan_all_host_names)
     },
     module.openbus.kubernetes_tf_outputs
   )
