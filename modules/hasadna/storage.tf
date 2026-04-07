@@ -351,6 +351,12 @@ locals {
         rook_storage_request_gi = 10
       }
     }
+    rook-ceph = {
+      kopia-home = {
+        node = "rook"
+        rook_storage_request_gi = 15
+      }
+    }
   }
 }
 
