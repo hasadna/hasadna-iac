@@ -64,7 +64,7 @@ locals {
       }
       airflow-db2 = {
         node = "rook"
-        rook_storage_request_gi = 1
+        rook_storage_request_gi = 5
       }
       airflow-home2 = {
         node = "rook"
@@ -77,7 +77,7 @@ locals {
       }
       publicdb = {
         node = "rook"
-        rook_storage_request_gi = 15
+        rook_storage_request_gi = 20
       }
     }
     budgetkey = {
@@ -92,7 +92,7 @@ locals {
       }
       api2 = {
         node = "rook"
-        rook_storage_request_gi = 2
+        rook_storage_request_gi = 5
       }
       data-input-db2 = {
         node = "rook"
@@ -126,11 +126,11 @@ locals {
       }
       postgresql-data2 = {
         node = "rook"
-        rook_storage_request_gi = 10
+        rook_storage_request_gi = 15
       }
       pipelines-redis2 = {
         node = "rook"
-        rook_storage_request_gi = 1
+        rook_storage_request_gi = 5
       }
       solr2 = {
         node = "rook"
@@ -145,7 +145,7 @@ locals {
       }
       airflow-db2 = {
         node = "rook"
-        rook_storage_request_gi = 15
+        rook_storage_request_gi = 20
       }
       airflow-home2 = {
         node = "rook"
@@ -202,7 +202,7 @@ locals {
     forum = {
       discourse2 = {
         node = "rook"
-        rook_storage_request_gi = 5
+        rook_storage_request_gi = 10
       }
       postgres2 = {
         node = "rook"
@@ -242,7 +242,7 @@ locals {
       }
       mapali2 = {
         node = "rook"
-        rook_storage_request_gi = 5
+        rook_storage_request_gi = 10
       }
     }
     dear-diary = {
@@ -268,7 +268,7 @@ locals {
       }
       pipelines2 = {
         node = "rook"
-        rook_storage_request_gi = 5
+        rook_storage_request_gi = 10
       }
       postgres2 = {
         node = "rook"
