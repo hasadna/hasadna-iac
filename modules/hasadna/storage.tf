@@ -354,7 +354,7 @@ locals {
     rook-ceph = {
       kopia-home = {
         node = "rook"
-        rook_storage_request_gi = 15
+        rook_storage_request_gi = 30
       }
     }
   }
