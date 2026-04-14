@@ -163,42 +163,6 @@ locals {
         rook_storage_request_gi = 20
       }
     }
-    srm-etl-production = {
-      data = {
-        node = "worker1"
-        create_pv = false
-      }
-      minio = {
-        ref_existing = "data"
-        pv_subpath = "/minio"
-      }
-      db = {
-        ref_existing = "data"
-        pv_subpath = "/db"
-      }
-      elasticsearch = {
-        ref_existing = "data"
-        pv_subpath = "/elasticsearch"
-      }
-    }
-    srm-etl-staging = {
-      data = {
-        node = "worker2"
-        create_pv = false
-      }
-      minio = {
-        ref_existing = "data"
-        pv_subpath = "/minio"
-      }
-      db = {
-        ref_existing = "data"
-        pv_subpath = "/db"
-      }
-      elasticsearch = {
-        ref_existing = "data"
-        pv_subpath = "/elasticsearch"
-      }
-    }
     forum = {
       discourse2 = {
         node = "rook"

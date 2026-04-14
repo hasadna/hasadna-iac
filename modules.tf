@@ -23,13 +23,6 @@ module "openbus" {
   cluster_ingress_hostname = module.hasadna.rke2_cluster_ingress_hostname
 }
 
-module "srm" {
-  source = "./modules/srm"
-  providers = {
-    grafana = grafana
-  }
-}
-
 module "datacity" {
   source = "./modules/datacity"
   google_service_account = base64decode(var.datacity_google_service_account_b64)
