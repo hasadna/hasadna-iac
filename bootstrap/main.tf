@@ -28,14 +28,18 @@ resource "google_project_iam_custom_role" "terraform" {
         "iam.serviceAccountKeys.create",
         "iam.serviceAccountKeys.get",
         "iam.serviceAccounts.create",
+        "iam.serviceAccounts.delete",
         "iam.serviceAccounts.get",
         "resourcemanager.projects.getIamPolicy",
         "resourcemanager.projects.setIamPolicy",
         "storage.buckets.create",
+        "storage.buckets.delete",
         "storage.buckets.get",
         "storage.buckets.getIamPolicy",
         "storage.buckets.setIamPolicy",
-        "storage.hmacKeys.create"
+        "storage.hmacKeys.create",
+        "storage.objects.list",
+        "storage.objects.delete",
     ]
 }
 

@@ -6,12 +6,17 @@ It should run rarely, usually only when more permissions are needed for Terrafor
 
 ## Usage
 
-Follow the README to set up your environment.
-
 Login to your personal GCP account which should have owner permissions on the relevant projects:
 
 ```
 gcloud auth application-default login
+```
+
+Set env vars for connection to Vault
+
+```
+export VAULT_ADDR=
+export VAULT_TOKEN=
 ```
 
 Initialize the bootstrap project:
