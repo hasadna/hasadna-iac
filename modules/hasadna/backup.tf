@@ -71,27 +71,31 @@ resource "null_resource" "kopia_init_repo" {
     aws_s3_bucket.hasadna_kopia_backups
   ]
   triggers = {
-    command = <<-EOT
+    command = nonsensitive(<<-EOT
       set -euo pipefail
-      export KOPIA_PASSWORD=${random_password.kopia_backups_password.result}
-      export AWS_ACCESS_KEY_ID=${aws_iam_access_key.kopia_backups.id}
-      export AWS_SECRET_ACCESS_KEY=${aws_iam_access_key.kopia_backups.secret}
-      docker run --rm -e KOPIA_PASSWORD -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --entrypoint bash kopia/kopia:${local.kopia_version} -c '
+      sudo docker run --rm \
+        -e KOPIA_PASSWORD=${random_password.kopia_backups_password.result} \
+        -e AWS_ACCESS_KEY_ID=${aws_iam_access_key.kopia_backups.id} \
+        -e AWS_SECRET_ACCESS_KEY=${aws_iam_access_key.kopia_backups.secret} \
+        --entrypoint bash kopia/kopia:${local.kopia_version} -c '
         set -euo pipefail
         if ! kopia repository connect s3 --bucket=${aws_s3_bucket.hasadna_kopia_backups.bucket} --region=${aws_s3_bucket.hasadna_kopia_backups.region}; then
           kopia repository create s3 --bucket=${aws_s3_bucket.hasadna_kopia_backups.bucket} --region=${aws_s3_bucket.hasadna_kopia_backups.region}
         fi
         kopia policy set --global \
-          --keep-annual 10 \
-          --keep-monthly 12 \
-          --keep-weekly 4 \
+          --compression zstd \
+          --metadata-compression zstd \
+          --keep-annual 2 \
+          --keep-monthly 6 \
+          --keep-weekly 3 \
           --keep-daily 7 \
-          --keep-hourly 48 \
-          --keep-latest 10 \
-          --max-parallel-snapshots 1 \
-          --max-parallel-file-reads 1
+          --keep-hourly 0 \
+          --keep-latest 0 \
+          --max-parallel-snapshots 2 \
+          --max-parallel-file-reads 10
       '
     EOT
+    )
   }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
@@ -102,8 +106,9 @@ resource "null_resource" "kopia_init_repo" {
 locals {
   rke2_kopia_backup_servers = {
     for server in [for node_name in keys(kamatera_server.rke2) : "hasadna-rke2-${node_name}"] : server => {
-      backup_paths = join(" ", [for k, v in local.rke2_storage_backup_paths : v.path if v.server == server])
-      has_backup_paths = length([for k, v in local.rke2_storage_backup_paths : v.path if v.server == server]) > 0
+      backup_paths_daily = join(" ", [for k, v in local.rke2_storage_backup_paths_daily : v.path if v.server == server])
+      backup_paths_weekly = join(" ", [for k, v in local.rke2_storage_backup_paths_weekly : v.path if v.server == server])
+      has_backup_paths = length([for k, v in local.rke2_storage_backup_paths_daily : v.path if v.server == server]) > 0 || length([for k, v in local.rke2_storage_backup_paths_weekly : v.path if v.server == server]) > 0
     }
   }
 }
@@ -127,7 +132,7 @@ resource "null_resource" "kopia_init_node" {
           sha256(file("${path.module}/backup_kopia_connect.sh")),
           sha256(file("${path.module}/backup_rke2_cronjob.sh")),
         ])
-        command = <<-EOT
+        command = nonsensitive(<<-EOT
         set -euo pipefail
         scp ${path.module}/backup_kopia_connect.sh ${each.key}:/root/kopia_connect.sh
         scp ${path.module}/backup_rke2_cronjob.sh ${each.key}:/root/backups_cronjob.sh
@@ -148,12 +153,18 @@ resource "null_resource" "kopia_init_node" {
           REGION=\"${aws_s3_bucket.hasadna_kopia_backups.region}\"
           STATUSCAKE_HEATBEAT_URL=\"${each.value.has_backup_paths ? statuscake_heartbeat_check.rke2_backups[each.key].check_url : ""}\"
           ' > /root/.kopia.env
-          echo ${each.value.backup_paths} > /root/.kopia.backup_paths
+          echo ${each.value.backup_paths_daily} > /root/.kopia.backup_paths_daily
+          echo ${each.value.backup_paths_weekly} > /root/.kopia.backup_paths_weekly
           chmod +x /root/kopia_connect.sh /root/backups_cronjob.sh
-          echo 35 1 '*' '*' '*' root /root/backups_cronjob.sh > /etc/cron.d/kopia_backups_cronjob
+          if [ "${each.value.backup_paths_daily}" == "" ] && [ "${each.value.backup_paths_weekly}" == "" ]; then
+            rm /etc/cron.d/kopia_backups_cronjob
+          else
+            echo 35 1 '*' '*' '*' root /root/backups_cronjob.sh > /etc/cron.d/kopia_backups_cronjob
+          fi
           systemctl restart cron
         "
         EOT
+        )
     }
     provisioner "local-exec" {
         interpreter = ["bash", "-c"]

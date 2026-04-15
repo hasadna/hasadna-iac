@@ -22,6 +22,10 @@ locals {
     #                   so each one can get it's own PV/PVC but all reference the same storage location
     #
     #     pv_subpath: if set, will suffix this subpath to the PV storage path, mostly useful in combination with ref_existing
+    #
+    #     backup_freq: "daily" / "weekly" / "none"
+    #                  default is: "weekly"
+    #                  this can also be set at the namespace level to apply to all storages under this namespace
     monitoring = {
       alertmanager = {
         node = "worker1"
@@ -33,9 +37,11 @@ locals {
       prometheus = {
         node = "worker1"
         create_pvc = false
+        backup_freq = "none"  # metrics data changes a lot and is not critical to backup
       }
     }
     vault = {
+      backup_freq = "daily"
       vault = {
         node = "worker1"
       }
@@ -44,9 +50,11 @@ locals {
       postgres2 = {
         node = "rook"
         rook_storage_request_gi = 10
+        backup_freq = "none"
       }
     }
     default = {
+      backup_freq = "daily"
       terraformstatedb = {
         node = "worker1"
       }
@@ -65,11 +73,13 @@ locals {
       airflow-db2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        backup_freq = "none"
       }
       airflow-home2 = {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 50
+        backup_freq = "none"
       }
       site-db2 = {
         node = "rook"
@@ -131,10 +141,12 @@ locals {
       pipelines-redis2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        backup_freq = "none"
       }
       solr2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        backup_freq = "none"  # solr data can be reindexed
       }
     }
     openbus = {
@@ -146,11 +158,13 @@ locals {
       airflow-db2 = {
         node = "rook"
         rook_storage_request_gi = 20
+        backup_freq = "none"
       }
       airflow-home2 = {
         node = "rook"
         rook_shared = true
         rook_storage_request_gi = 5
+        backup_freq = "none"
       }
       legacy2 = {
         node = "rook"
@@ -174,6 +188,7 @@ locals {
       }
       redis3 = {
         node = "worker1"
+        backup_freq = "none"
       }
     }
     betaknesset = {
@@ -199,6 +214,7 @@ locals {
       ckan-dgp-logs2 = {
         node = "rook"
         rook_storage_request_gi = 5
+        backup_freq = "none"
       }
       importer2 = {
         node = "rook"
@@ -319,6 +335,7 @@ locals {
       kopia-home = {
         node = "rook"
         rook_storage_request_gi = 30
+        backup_freq = "none"
       }
     }
   }
@@ -391,18 +408,25 @@ locals {
             rook_shared = lookup(storage, "rook_shared", false)
             rook_storage_request_gi = lookup(storage, "rook_storage_request_gi", false)
             pvc_labels_name = lookup(storage, "pvc_labels_name", "${namespace}-${name}")
-          }
+            backup_freq = lookup(storage, "backup_freq", try(storages["backup_freq"], "weekly"))
+          } if name != "backup_freq"
         ]
       ]
     ) : "${s.namespace}_${s.name}" => s
   }
 
   # paths to backup per node, used for kopia backups as defined in rke2_backups.tf
-  rke2_storage_backup_paths = {
+  rke2_storage_backup_paths_daily = {
     for k, v in local.rke2_storage_flat : k => {
       path = v.full_path
       server = "hasadna-rke2-${v.node}"
-    } if v.ref_existing == false && v.node != "rook"
+    } if v.ref_existing == false && v.node != "rook" && v.backup_freq == "daily"
+  }
+  rke2_storage_backup_paths_weekly = {
+    for k, v in local.rke2_storage_flat : k => {
+      path = v.full_path
+      server = "hasadna-rke2-${v.node}"
+    } if v.ref_existing == false && v.node != "rook" && v.backup_freq == "weekly"
   }
 
   # paths to create on each node
@@ -549,6 +573,7 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_block" {
     labels = {
       "app.kubernetes.io/name" = each.value.pvc_labels_name
       "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
+      "hasadna/iac-storage-backup-freq" = each.value.backup_freq
     }
   }
   spec {
@@ -573,6 +598,7 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_shared" {
     labels = {
       "app.kubernetes.io/name" = each.value.pvc_labels_name
       "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
+      "hasadna/iac-storage-backup-freq" = each.value.backup_freq
     }
   }
   spec {
