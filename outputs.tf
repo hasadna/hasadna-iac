@@ -21,3 +21,7 @@ output "oknesset_publicdb_readonly_users" {
   value = module.apps.oknesset_publicdb_readonly_users
   sensitive = true
 }
+
+output "openbus_stride_db_ssh_config" {
+  value = module.openbus.stride_db_ssh_config
+}

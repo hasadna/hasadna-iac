@@ -200,12 +200,14 @@ def main_shell():
         env={**os.environ, 'VAULT_ADDR': vault_addr, 'VAULT_TOKEN': vault_token},
         cwd=os.path.expanduser('~/hasadna-iac')
     )
-    rke2_ssh_config = subprocess.check_output(['terraform', 'output', '-raw', 'rke2_ssh_config'], env={
-        **os.environ,
-        'VAULT_ADDR': vault_addr,
-        'VAULT_TOKEN': vault_token
-    }, cwd=os.path.expanduser('~/hasadna-iac')).decode().strip()
-    init_ssh_config(tempdir, data['ssh_private_key']['value'], rke2_ssh_config, vault_addr, vault_token)
+    ssh_configs = []
+    for key in ['rke2_ssh_config', 'openbus_stride_db_ssh_config']:
+        ssh_configs.append(subprocess.check_output(['terraform', 'output', '-raw', key], env={
+            **os.environ,
+            'VAULT_ADDR': vault_addr,
+            'VAULT_TOKEN': vault_token
+        }, cwd=os.path.expanduser('~/hasadna-iac')).decode().strip())
+    init_ssh_config(tempdir, data['ssh_private_key']['value'], "\n".join(ssh_configs), vault_addr, vault_token)
     with open(os.path.join(tempdir, 'env'), 'w') as f:
         f.write(subprocess.check_output(['python', os.path.expanduser('~/hasadna-iac/bin/get_secret_envvars.py')], env={
             **os.environ,

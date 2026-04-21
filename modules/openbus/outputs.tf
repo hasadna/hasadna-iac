@@ -15,3 +15,12 @@ output "kubernetes_tf_outputs" {
     }
   )
 }
+
+output "stride_db_ssh_config" {
+  value = <<-EOF
+    Host stride-db
+      HostName ${kamatera_server.hasadna_stride_db.public_ips[0]}
+      User root
+      ProxyJump hasadna-ssh-access-point
+  EOF
+}
