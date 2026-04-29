@@ -337,6 +337,11 @@ locals {
         rook_storage_request_gi = 30
         backup_freq = "none"
       }
+      cube-backup-meta = {
+        node = "rook"
+        rook_storage_request_gi = 20
+        backup_freq = "none"
+      }
     }
   }
 }
