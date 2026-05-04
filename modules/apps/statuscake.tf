@@ -29,6 +29,12 @@ locals {
       url = "https://rgw.rke2.hasadna.org.il/digital-forest-ugc/healthcheck.txt"
       disabled = false
       extra_contact_groups = []
+    },
+    {
+      name = "podcasts"
+      url = "https://podcasts.rke2.hasadna.org.il/podcasts/index.html"
+      disabled = false
+      extra_contact_groups = []
     }
   ]
 }
