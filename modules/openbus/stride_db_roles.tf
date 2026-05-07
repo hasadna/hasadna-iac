@@ -24,17 +24,15 @@ GRANT SELECT ON TABLE public.siri_snapshot TO __role_name__;
 GRANT SELECT ON TABLE public.siri_stop TO __role_name__;
 GRANT SELECT ON TABLE public.siri_vehicle_location TO __role_name__;
 EOF
+  default_readonly_user = {
+    "role_with": "NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS"
+    "set_password": true
+    "sql" = local.default_readonly_user_sql
+  }
   stride_db_roles = {
-    "redash_reader": {
-      "role_with": "NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS"
-      "set_password": true
-      "sql" = local.default_readonly_user_sql
-    }
-    "api": {
-      "role_with": "NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS"
-      "set_password": true
-      "sql" = local.default_readonly_user_sql
-    }
+    "redash_reader": local.default_readonly_user
+    "api": local.default_readonly_user
+    "github_api_ci": local.default_readonly_user
   }
 }
 

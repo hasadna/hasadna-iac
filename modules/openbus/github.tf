@@ -38,3 +38,9 @@ resource "github_actions_secret" "openbus_repo_deploy_keys" {
   secret_name = join("_", [replace(upper(each.value["deploy_repo_name"]), "-", "_"), "DEPLOY_KEY"])
   plaintext_value = tls_private_key.openbus_repo_deploy_keys[each.value["deploy_repo_name"]].private_key_pem
 }
+
+resource "github_actions_secret" "openbus_stride_api_sqlalchemy_url" {
+  repository      = "open-bus-stride-api"
+  secret_name     = "SQLALCHEMY_URL"
+  plaintext_value = "postgresql://github_api_ci:${random_password.stride_db_role["github_api_ci"].result}@${kamatera_server.hasadna_stride_db.public_ips[0]}:5432/postgres"
+}
