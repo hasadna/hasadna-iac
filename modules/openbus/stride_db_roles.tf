@@ -17,6 +17,7 @@ GRANT SELECT ON TABLE public.gtfs_ride_stop TO __role_name__;
 GRANT SELECT ON TABLE public.gtfs_stop TO __role_name__;
 GRANT SELECT ON TABLE public.gtfs_route TO __role_name__;
 GRANT SELECT ON TABLE public.gtfs_stop_mot_id TO __role_name__;
+GRANT SELECT ON TABLE public.gtfs_rides_agg_by_hour TO __role_name__;
 GRANT SELECT ON TABLE public.siri_ride TO __role_name__;
 GRANT SELECT ON TABLE public.siri_ride_stop TO __role_name__;
 GRANT SELECT ON TABLE public.siri_route TO __role_name__;
