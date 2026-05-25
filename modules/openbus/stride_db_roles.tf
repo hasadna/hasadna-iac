@@ -17,13 +17,14 @@ GRANT SELECT ON TABLE public.gtfs_ride_stop TO __role_name__;
 GRANT SELECT ON TABLE public.gtfs_stop TO __role_name__;
 GRANT SELECT ON TABLE public.gtfs_route TO __role_name__;
 GRANT SELECT ON TABLE public.gtfs_stop_mot_id TO __role_name__;
-GRANT SELECT ON TABLE public.gtfs_rides_agg_by_hour TO __role_name__;
 GRANT SELECT ON TABLE public.siri_ride TO __role_name__;
 GRANT SELECT ON TABLE public.siri_ride_stop TO __role_name__;
 GRANT SELECT ON TABLE public.siri_route TO __role_name__;
 GRANT SELECT ON TABLE public.siri_snapshot TO __role_name__;
 GRANT SELECT ON TABLE public.siri_stop TO __role_name__;
 GRANT SELECT ON TABLE public.siri_vehicle_location TO __role_name__;
+GRANT SELECT ON public.gtfs_rides_agg_by_hour TO __role_name__;
+GRANT SELECT ON public.gtfs_rides_agg TO __role_name__;
 EOF
   default_readonly_user = {
     "role_with": "NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS"
@@ -67,6 +68,9 @@ ssh stride-db sudo -u postgres bash <<'EOT'
 set -euo pipefail
 cd
 export LC_ALL=C.UTF-8
+exec 200>hasadna_iac_terraform.stride_db_role.lock
+flock -w300 200
+echo "Applying role ${each.key}"
 psql -Atqc "CREATE ROLE ${each.key};" || true
 psql -Atqc "ALTER ROLE ${each.key} WITH ${each.value.role_with};"
 if [ "${each.value.set_password}" = "true" ]; then
