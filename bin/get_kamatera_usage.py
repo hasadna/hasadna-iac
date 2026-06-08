@@ -4,9 +4,11 @@ import sys
 import csv
 import io
 from datetime import datetime, timedelta
+from pathlib import Path
+import tempfile
 
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
+from googleapiclient.http import MediaIoBaseUpload, MediaIoBaseDownload
 import google.auth
 import requests
 
@@ -263,12 +265,83 @@ def main(year=None, month=None, output=None):
             output_file.close()
     if is_gdrive:
         upload_to_gdrive(output, year, month, output_file)
+        if month == 12:
+            upload_yearly(year)
     print('Done.', file=sys.stderr)
 
 
+def download_year(year, output_dir):
+    drive, sheets = get_drive_services()
+    root_folder_id = os.environ["GOOGLE_DRIVE_FOLDER_ID"]
+    year_folder_id = get_or_create_subfolder(drive, root_folder_id, str(year))
+    for month in range(1, 13):
+        res = drive.files().list(
+            q=f"name='kamatera usage {month}.{year}' and '{year_folder_id}' in parents and trashed=false",
+            spaces="drive", supportsAllDrives=True, includeItemsFromAllDrives=True
+        ).execute()
+        assert len(res['files']) == 1
+        file = res['files'][0]
+        assert file['mimeType'] == 'application/vnd.google-apps.spreadsheet'
+        file_id = file['id']
+        print(f'{month}: {file_id}', file=sys.stderr)
+        request = drive.files().export_media(fileId=file_id, mimeType="text/csv")
+        with (Path(output_dir) / f"{year}_{month:02d}.csv").open("wb") as f:
+            downloader = MediaIoBaseDownload(f, request)
+            done = False
+            while not done:
+                status, done = downloader.next_chunk()
+
+
+def generate_yearly(monthly_usage_dir, output_filename):
+    writer = csv.DictWriter(
+        open(output_filename, "w", newline=""),
+        fieldnames=["Year", "Month"] + KEEP_COLUMNS,
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    for monthly_file in sorted(Path(monthly_usage_dir).glob("????_??.csv")):
+        print(f'Processing {monthly_file}...', file=sys.stderr)
+        year, month = monthly_file.stem.split("_")
+        assert int(year) and int(month)
+        with monthly_file.open() as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row['User ID'].startswith('Generated at: '):
+                    continue
+                writer.writerow({
+                    "Year": year,
+                    "Month": month,
+                    **row
+                })
+
+
+def upload_yearly(year, yearly_filename=None):
+    if not yearly_filename:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            download_year(year, tmp_dir)
+            generate_yearly(tmp_dir, f'{tmp_dir}/yearly.csv')
+            upload_yearly(year, f'{tmp_dir}/yearly.csv')
+        exit(0)
+    root_folder_id = os.environ["GOOGLE_DRIVE_FOLDER_ID"]
+    drive, sheets = get_drive_services()
+    year_folder_id = get_or_create_subfolder(drive, root_folder_id, str(year))
+    sheet_title = f"yearly kamatera usage {year}"
+    with open(yearly_filename) as f:
+        sheet_id, action = upload_csv_as_google_sheet(
+            drive=drive,
+            sheets=sheets,
+            parent_folder_id=year_folder_id,
+            sheet_name=sheet_title,
+            csv_text=f.read(),
+        )
+    print(f'Uploaded ({action}) {yearly_filename} to sheet_id {sheet_id}', file=sys.stderr)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 4 and len(sys.argv) != 1:
-        print("Usage: script.py [<year> <month> <output>]", file=sys.stderr)
+    if "--help" in sys.argv or "-h" in sys.argv:
+        print("Usage:")
+        print("fetch usage and upload to gdrive: bin/get_kamatera_usage.py [<year> <month> <output>]", file=sys.stderr)
+        print("download data from gdrive: bin/get_kamatera_usage.py --download-year <year> <output_dir>", file=sys.stderr)
         print("""
 To test gdrive upload:
 
@@ -282,4 +355,11 @@ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your-service-account-key.json"
 """)
         sys.exit(1)
 
-    main(*sys.argv[1:])
+    if len(sys.argv) > 1 and sys.argv[1] == "--download-year":
+        download_year(sys.argv[2], sys.argv[3])
+    if len(sys.argv) > 1 and sys.argv[1] == "--generate-yearly":
+        generate_yearly(sys.argv[2], sys.argv[3])
+    if len(sys.argv) > 1 and sys.argv[1] == "--upload-yearly":
+        upload_yearly(*sys.argv[2:])
+    else:
+        main(*sys.argv[1:])
