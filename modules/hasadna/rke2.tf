@@ -4,6 +4,7 @@ locals {
   rke2_servers = {
     controlplane1 = {
       type = "controlplane1"
+      cpu_type = "B"
       cpu_cores = 8
       ram_mb = 16384
       disk_sizes_gb = [100]
@@ -14,6 +15,7 @@ locals {
     # used for critical non application workloads only
     critical1 = {
       type = "critical"
+      cpu_type = "B"
       cpu_cores = 8
       ram_mb = 16384
       disk_sizes_gb = [100, 1000]  # the extra disk is used directly by Ceph
@@ -23,6 +25,7 @@ locals {
     }
     critical2 = {
       type = "critical"
+      cpu_type = "B"
       cpu_cores = 8
       ram_mb = 16384
       disk_sizes_gb = [100, 1000]  # the extra disk is used directly by Ceph
@@ -32,48 +35,36 @@ locals {
     }
     worker1 = {
       type = "worker"
+      cpu_type = "B"
       cpu_cores = 24
       ram_mb = 65536
-      disk_sizes_gb = [100, 500]
+      disk_sizes_gb = [100, 500, 150]
       ingress = true
       storage = "/dev/sdb1"
       ceph_storage = false
+      rancher_storage = "sdc"
     }
     worker2 = {
       type = "worker"
+      cpu_type = "B"
       cpu_cores = 24
       ram_mb = 65536
-      disk_sizes_gb = [100, 700]
+      disk_sizes_gb = [100, 700, 150]
       ingress = true
       storage = "/dev/sdb1"
       ceph_storage = false
+      rancher_storage = "sdc"
     }
     worker3 = {
       type = "worker"
+      cpu_type = "B"
       cpu_cores = 24
       ram_mb = 65536
-      disk_sizes_gb = [100]
+      disk_sizes_gb = [100, 150]
       ingress = true
       storage = false
       ceph_storage = false
-    }
-    worker4 = {
-      type = "worker"
-      cpu_cores = 24
-      ram_mb = 65536
-      disk_sizes_gb = [100]
-      ingress = false
-      storage = false
-      ceph_storage = false
-    }
-    worker5 = {
-      type = "worker"
-      cpu_cores = 24
-      ram_mb = 65536
-      disk_sizes_gb = [100]
-      ingress = false
-      storage = false
-      ceph_storage = false
+      rancher_storage = "sdb"
     }
   }
 }
@@ -82,7 +73,7 @@ resource "kamatera_server" "rke2" {
   for_each = local.rke2_servers
   name = "hasadna-rke2-${each.key}"
   datacenter_id = "IL"
-  cpu_type = "B"
+  cpu_type = each.value.cpu_type
   cpu_cores = each.value.cpu_cores
   ram_mb = each.value.ram_mb
   disk_sizes_gb = each.value.disk_sizes_gb
@@ -362,3 +353,51 @@ resource "null_resource" "rke2_registries" {
     EOF
   }
 }
+
+# do this manually
+#
+# resource "null_resource" "rke2_rancher_storage" {
+#   for_each = {
+#     for name, server in local.rke2_servers : name => server if server.rancher_storage != false
+#   }
+#   depends_on = [null_resource.rke2_install_workers]
+#   triggers = {
+#     command = <<-EOF
+#     cat <<-EOT | ssh hasadna-rke2-${each.key} "bash -s"
+#     set -euo pipefail
+#     HDD=${each.value.rancher_storage}
+#     HDD1=${each.value.rancher_storage}1
+#     for host in /sys/class/scsi_host/host*; do
+#       echo "- - -" > "$host/scan"
+#     done
+#     if blkid /dev/$HDD; then
+#       echo "/dev/$HDD already has a filesystem, skipping partitioning"
+#       exit 0
+#     else
+#       parted /dev/$HDD --script mklabel gpt
+#       parted /dev/$HDD --script mkpart primary ext4 0% 100%
+#       partprobe /dev/$HDD
+#       mkfs.ext4 -L data /dev/$HDD1
+#       mkdir -p /mnt/rancher_storage
+#       mount /dev/$HDD1 /mnt/rancher_storage
+#       rsync -aHAXx --numeric-ids /var/lib/rancher/ /mnt/rancher_storage/
+#       drain the node
+#       systemctl stop rke2-agent
+#       mv /var/lib/rancher /var/lib/rancher.old
+#       rsync -aHAXx --delete --numeric-ids /var/lib/rancher.old/ /mnt/rancher_storage/
+#       umount /mnt/rancher_storage
+#       mkdir -p /var/lib/rancher
+#       echo "UUID=$(blkid -s UUID -o value /dev/$HDD1) /var/lib/rancher ext4 defaults,nofail 0 2" >> /etc/fstab
+#       systemctl daemon-reload
+#       mount -a
+#       systemctl start rke2-agent
+#       uncordon node
+#       rm -rf --one-file-system /var/lib/rancher.old
+#     fi
+#     EOT
+#     EOF
+#   }
+#   provisioner "local-exec" {
+#     command = self.triggers.command
+#   }
+# }
