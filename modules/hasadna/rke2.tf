@@ -57,7 +57,7 @@ locals {
     }
     worker3 = {
       type = "worker"
-      cpu_type = "A"
+      cpu_type = "B"
       cpu_cores = 24
       ram_mb = 65536
       disk_sizes_gb = [100, 150]
