@@ -85,7 +85,7 @@ resource "kamatera_server" "rke2" {
   }
 
   network {
-    name = kamatera_network.hasadna.full_name
+    name = "lan-82145-hasadna"
   }
 }
 

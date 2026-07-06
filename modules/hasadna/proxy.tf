@@ -17,7 +17,7 @@ locals {
 
   # for testing, can temporarily enable public IP for the proxy
   # remember to disable it after testing, to avoid unnecessary exposure
-  hasadna_proxy1_enable_public = true
+  hasadna_proxy1_enable_public = false
 
   hasadna_proxy1_private_ip = data.vault_kv_secret_v2.proxy.data["hasadna-proxy1-private-ip"]
   hasadna_proxy1_public_ip = data.vault_kv_secret_v2.proxy.data["hasadna-proxy1-public-ip"]

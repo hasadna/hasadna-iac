@@ -27,7 +27,7 @@ resource "kamatera_server" "hasadna_ssh_access_point" {
   }
 
   network {
-    name = kamatera_network.hasadna.full_name
+    name = "lan-82145-hasadna"
     ip = "172.16.0.7"
   }
 

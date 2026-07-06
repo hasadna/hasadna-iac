@@ -13,12 +13,12 @@ locals {
   kamatera_image_israel_ubuntu_2404_id = "IL:6000C29549da189eaef6ea8a31001a34"
 }
 
-resource "kamatera_network" "hasadna" {
-  datacenter_id = "IL"
-  name = "hasadna"
-
-  subnet {
-    ip = "172.16.0.0"
-    bit = 23
-  }
-}
+# resource "kamatera_network" "hasadna" {
+#   datacenter_id = "IL"
+#   name = "hasadna"
+#
+#   subnet {
+#     ip = "172.16.0.0"
+#     bit = 23
+#   }
+# }
