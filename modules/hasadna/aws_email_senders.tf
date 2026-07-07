@@ -80,12 +80,14 @@ resource "aws_iam_user" "aws_email_senders" {
   for_each = local.aws_email_senders
 
   name = "hasadna-iac-email-sender-${each.key}"
+  provider = aws.us_east_1
 }
 
 resource "aws_iam_access_key" "aws_email_senders" {
   for_each = local.aws_email_senders
 
   user = aws_iam_user.aws_email_senders[each.key].name
+  provider = aws.us_east_1
 }
 
 resource "aws_iam_user_policy" "aws_email_senders" {
@@ -93,6 +95,7 @@ resource "aws_iam_user_policy" "aws_email_senders" {
 
   name = "hasadna-iac-email-sender-${each.key}-ses-send"
   user = aws_iam_user.aws_email_senders[each.key].name
+  provider = aws.us_east_1
 
   policy = jsonencode({
     Version = "2012-10-17"
