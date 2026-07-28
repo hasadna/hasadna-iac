@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+chmod a+r -R modules/
+
 if [ "$1" == "initialize" ]; then
   exec docker run --pull always -it --network host \
     -v `pwd`:/home/atlantis/hasadna-iac ghcr.io/hasadna/hasadna-iac/atlantis:latest "$@"

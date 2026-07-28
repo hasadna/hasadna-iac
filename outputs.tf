@@ -25,3 +25,8 @@ output "oknesset_publicdb_readonly_users" {
 output "openbus_stride_db_ssh_config" {
   value = module.openbus.stride_db_ssh_config
 }
+
+output "openbus_stride_db_read_only_github_users_creds" {
+  value = module.openbus.stride_db_read_only_github_users_creds
+  sensitive = true
+}

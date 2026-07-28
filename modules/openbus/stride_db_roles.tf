@@ -1,3 +1,7 @@
+data "github_team" "stride_read_only_users" {
+  slug = "open-bus-stride-read-only-users"
+}
+
 locals {
   default_readonly_user_sql = <<-EOF
 ALTER ROLE __role_name__ SET statement_timeout = '60s';
@@ -31,11 +35,16 @@ EOF
     "set_password": true
     "sql" = local.default_readonly_user_sql
   }
-  stride_db_roles = {
-    "redash_reader": local.default_readonly_user
-    "api": local.default_readonly_user
-    "github_api_ci": local.default_readonly_user
-  }
+  stride_db_roles = merge(
+    {
+      "redash_reader": local.default_readonly_user
+      "api": local.default_readonly_user
+      "github_api_ci": local.default_readonly_user
+    },
+    {
+      for member in data.github_team.stride_read_only_users.members : "gh_${lower(member)}" => local.default_readonly_user
+    }
+  )
 }
 
 resource "random_password" "stride_db_role" {
@@ -88,5 +97,17 @@ EOF
   provisioner "local-exec" {
     command = self.triggers_replace.script
     interpreter = ["bash", "-c"]
+  }
+}
+
+output "stride_db_read_only_github_users_creds" {
+  sensitive = true
+  value = {
+    for member in data.github_team.stride_read_only_users.members : member => {
+      host: "open-bus-stride-db.${var.cloudflare_zone_hasadna_org_il.name}"
+      port: 5432
+      user: "gh_${lower(member)}"
+      pass: random_password.stride_db_role["gh_${lower(member)}"].result
+    }
   }
 }
