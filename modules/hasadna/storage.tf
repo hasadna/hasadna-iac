@@ -13,9 +13,7 @@ locals {
     #     full_path: if set, will use this as the full path from the server root, ignoring the name and namespace_path
     #
     #     create_pv: default true, if false, will not create a Persistent Volume for this storage (and also will not create a Persistent Volume Claim)
-    #                 ignored for rook, because it must provision them to allocate the storage
     #     create_pvc: default true, if false, will not create a Persistent Volume Claim for this storage
-    #                 ignored for rook, because it must provision them to allocate the storage
     #
     #     ref_existing: special mode, if set, the value needs to match another storage item from the same namespace
     #                   this is used for cases where the same storage is shared by multiple workloads
@@ -343,6 +341,13 @@ locals {
         backup_freq = "none"
       }
     }
+    cloudnative-pg = {
+      talpihack-pg-cluster = {
+        node = "rook"
+        rook_storage_request_gi = 15
+        create_pvc = false
+      }
+    }
   }
 }
 
@@ -568,7 +573,7 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage" {
 }
 
 resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_block" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == false}
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == false && v.create_pvc && v.create_pv}
   depends_on = [null_resource.rke2_ensure_storage_namespaces]
   provider = kubernetes.rke2
   wait_until_bound = false
@@ -593,7 +598,7 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_block" {
 }
 
 resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_shared" {
-  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == true}
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == true && v.create_pvc && v.create_pv}
   depends_on = [null_resource.rke2_ensure_storage_namespaces]
   provider = kubernetes.rke2
   wait_until_bound = false
@@ -614,5 +619,75 @@ resource "kubernetes_persistent_volume_claim" "rke2_storage_rook_shared" {
       }
     }
     access_modes = ["ReadWriteMany"]
+  }
+}
+
+resource "terraform_data" "rke2_storage_rook_block_pv_only_rbd" {
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == false && !v.create_pvc && v.create_pv}
+  depends_on = [null_resource.rke2_ensure_storage_namespaces]
+  triggers_replace = {
+    command = <<EOF
+import json
+import subprocess
+
+PVNAME = "hasadna-pv-${each.value.namespace}-${each.value.name}"
+PVSIZE_MB = ${each.value.rook_storage_request_gi} * 1024
+PVSIZE_BYTES = PVSIZE_MB * 1024 * 1024
+res = subprocess.run(["rbd", "info", f"replicapool/{PVNAME}", "--format=json"], capture_output=True, text=True)
+if res.returncode != 0:
+  subprocess.check_call(["rbd", "create", f"replicapool/{PVNAME}", "--size", str(PVSIZE_MB)])
+else:
+  if json.loads(res.stdout)["size"] != PVSIZE_BYTES:
+    subprocess.check_call(["rbd", "resize", f"replicapool/{PVNAME}", "--size", str(PVSIZE_MB)])
+EOF
+  }
+  provisioner "local-exec" {
+    command = self.triggers_replace.command
+    interpreter = ["kubectl", "exec", "-n", "rook-ceph", "deploy/rook-ceph-toolbox", "--", "python", "-c"]
+  }
+}
+
+resource "kubernetes_persistent_volume_v1" "rke2_storage_rook_block_pv_only_rbd" {
+  for_each = {for k, v in local.rke2_storage_flat : k => v if v.node == "rook" && v.rook_shared == false && !v.create_pvc && v.create_pv}
+  depends_on = [terraform_data.rke2_storage_rook_block_pv_only_rbd]
+  provider = kubernetes.rke2
+  metadata {
+    name = "hasadna-pv-${each.value.namespace}-${each.value.name}"
+    labels = {
+      "app.kubernetes.io/name" = "hasadna-pv-${each.value.namespace}-${each.value.name}"
+      "app.kubernetes.io/managed-by" = "terraform-hasadna-rke2-storage"
+      "hasadna/iac-storage-backup-freq" = each.value.backup_freq
+    }
+  }
+  spec {
+    capacity = {
+      storage = "${each.value.rook_storage_request_gi}Gi"
+    }
+    volume_mode = "Filesystem"
+    access_modes = ["ReadWriteOnce"]
+    persistent_volume_reclaim_policy = "Retain"
+    storage_class_name = ""
+    persistent_volume_source {
+      csi {
+        driver = "rook-ceph.rbd.csi.ceph.com"
+        volume_handle = "hasadna-pv-${each.value.namespace}-${each.value.name}"
+        fs_type = "ext4"
+        volume_attributes = {
+          clusterID = "rook-ceph"
+          imageFeatures = "layering,fast-diff,object-map,deep-flatten,exclusive-lock"
+          journalPool = "replicapool"
+          pool = "replicapool"
+          staticVolume = "true"
+        }
+        node_stage_secret_ref {
+          name = "rook-csi-rbd-node"
+          namespace = "rook-ceph"
+        }
+        controller_expand_secret_ref {
+          name = "rook-csi-rbd-provisioner"
+          namespace = "rook-ceph"
+        }
+      }
+    }
   }
 }
