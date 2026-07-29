@@ -1,0 +1,24 @@
+-- user/pass from vault Projects/meirim/k8s-mariadb-redash
+CREATE USER 'redash_readonly'@'%' IDENTIFIED BY '';
+GRANT SELECT ON meirim.activity TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.block TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.file TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.funding_transaction TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.impression TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.knex_migrations TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.knex_migrations_lock TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.parcel TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.permit TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.permit_aoi TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.plan TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.plan_area_changes TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.plan_links TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.plan_status_change TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.plan_tag TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.status TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.status_mapping TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.table_4_area_designation_and_usage TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.table_5_building_rights TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.table_6_additional_instructions TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.tag TO 'redash_readonly'@'%';
+GRANT SELECT ON meirim.tree_permit TO 'redash_readonly'@'%';
