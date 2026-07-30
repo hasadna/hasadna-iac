@@ -40,6 +40,7 @@ EOF
       "redash_reader": local.default_readonly_user
       "api": local.default_readonly_user
       "github_api_ci": local.default_readonly_user
+      "talpihack26": local.default_readonly_user
     },
     {
       for member in data.github_team.stride_read_only_users.members : "gh_${lower(member)}" => local.default_readonly_user
