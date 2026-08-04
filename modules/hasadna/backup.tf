@@ -157,7 +157,7 @@ resource "null_resource" "kopia_init_node" {
           echo ${each.value.backup_paths_weekly} > /root/.kopia.backup_paths_weekly
           chmod +x /root/kopia_connect.sh /root/backups_cronjob.sh
           if [ "${each.value.backup_paths_daily}" == "" ] && [ "${each.value.backup_paths_weekly}" == "" ]; then
-            rm /etc/cron.d/kopia_backups_cronjob
+            rm /etc/cron.d/kopia_backups_cronjob || true
           else
             echo 35 1 '*' '*' '*' root /root/backups_cronjob.sh > /etc/cron.d/kopia_backups_cronjob
           fi

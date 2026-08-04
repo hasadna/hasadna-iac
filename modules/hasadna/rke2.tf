@@ -43,6 +43,7 @@ locals {
       storage = "/dev/sdb1"
       ceph_storage = false
       rancher_storage = "sdc"
+      high_priority_workloads = true
     }
     worker2 = {
       type = "worker"
@@ -54,6 +55,7 @@ locals {
       storage = "/dev/sdb1"
       ceph_storage = false
       rancher_storage = "sdc"
+      high_priority_workloads = true
     }
     worker3 = {
       type = "worker"
@@ -62,6 +64,17 @@ locals {
       ram_mb = 65536
       disk_sizes_gb = [100, 150]
       ingress = true
+      storage = false
+      ceph_storage = false
+      rancher_storage = "sdb"
+    }
+    worker4 = {
+      type = "worker"
+      cpu_type = "B"
+      cpu_cores = 24
+      ram_mb = 65536
+      disk_sizes_gb = [100, 150]
+      ingress = false
       storage = false
       ceph_storage = false
       rancher_storage = "sdb"
@@ -330,6 +343,22 @@ resource "kubernetes_node_taint" "rke2_critical" {
     key    = "CriticalAddonsOnly"
     value  = "true"
     effect = "NoExecute"
+  }
+}
+
+resource "kubernetes_node_taint" "rke2_high_priority_workloads" {
+  depends_on = [null_resource.rke2_kubeconfig]
+  provider = kubernetes.rke2
+  for_each = {
+    for name, server in local.rke2_servers : name => server if try(server.high_priority_workloads, false) == true
+  }
+  metadata {
+      name = each.key
+  }
+  taint {
+    key    = "HighPriorityWorkloads"
+    value  = "true"
+    effect = "NoSchedule"
   }
 }
 
