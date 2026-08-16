@@ -67,6 +67,7 @@ locals {
       storage = false
       ceph_storage = false
       rancher_storage = "sdb"
+      high_priority_workloads = true
     }
     worker4 = {
       type = "worker"
@@ -78,6 +79,7 @@ locals {
       storage = false
       ceph_storage = false
       rancher_storage = "sdb"
+      max_pods = 150
     }
   }
 }
@@ -268,6 +270,8 @@ resource "null_resource" "rke2_install_workers" {
       node-external-ip: ${local.rke2_server_public_ip[each.key]}
       token-file: /etc/rancher/rke2/node-token
       server: https://${local.rke2_server_private_ip["controlplane1"]}:9345
+      kubelet-arg:
+        - "max-pods=${try(each.value.max_pods, 110)}"
     EOF
     command = <<-EOF
       curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=${local.rke2_version} INSTALL_RKE2_TYPE=agent sh - &&\
