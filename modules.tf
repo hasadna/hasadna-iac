@@ -33,5 +33,6 @@ module "apps" {
   providers = {
     kubernetes = kubernetes.rke2
   }
-   vault_addr = var.vault_addr
+  vault_addr = var.vault_addr
+  cloudflare_zone_hasadna_org_il = module.hasadna.cloudflare_zone_hasadna_org_il
 }
