@@ -341,10 +341,10 @@ locals {
         backup_freq = "none"
       }
     }
-    cloudnative-pg = {
-      talpihack-pg-cluster = {
+    knesset-mk-tracking = {
+      db = {
         node = "rook"
-        rook_storage_request_gi = 15
+        rook_storage_request_gi = 5
         create_pvc = false
       }
     }

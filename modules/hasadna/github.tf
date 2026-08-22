@@ -28,6 +28,11 @@ locals {
         "datacity-ckan-dgp": {}
       }
     }
+    "knesset-mk-tracking": {
+      "repos": {
+        "knesset-mk-tracking": {}
+      }
+    }
   }
 }
 

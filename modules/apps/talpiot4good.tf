@@ -5,5 +5,4 @@ resource "cloudflare_dns_record" "talpiot4good_site" {
   type    = "CNAME"
   ttl = 300
   proxied = false
-
 }
