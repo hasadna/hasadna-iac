@@ -3,10 +3,11 @@
 #
 #   ssh stride-lite 'curl -fsSL https://raw.githubusercontent.com/NoamGaash/stride-lite/main/scripts/bootstrap-node.sh |
 #     DATA_DEVICE=/dev/sdb BACKUP_URL=s3://stride-lite-backup-621816331709/full/ \
-#     BACKUP_PUBLISH=s3://openbus-stride-lite-backup/full/ \
+#     BACKUP_PUBLISH=s3://openbus-clickhouse-backup/full/ \
 #     AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... bash'
 #
-# The key is in Vault under Projects/OBus/stride-lite.
+# DATA_DEVICE is the 400 GB disk: check its name with `lsblk` first. The key is in Vault
+# under Projects/OBus/stride-lite.
 
 resource "kamatera_server" "stride_lite" {
   name          = "hasadna-stride-lite"
@@ -79,43 +80,43 @@ EOF
 # A copy of the built database, in ClickHouse's own backup format: restoring it takes
 # an hour where rebuilding from openbus-stride-public takes days. Public-read like that
 # bucket, since everything in it is already public.
-resource "aws_s3_bucket" "stride_lite_backup" {
-  bucket = "openbus-stride-lite-backup"
+resource "aws_s3_bucket" "clickhouse_backup" {
+  bucket = "openbus-clickhouse-backup"
 }
 
-resource "aws_s3_bucket_public_access_block" "stride_lite_backup" {
-  bucket                  = aws_s3_bucket.stride_lite_backup.id
+resource "aws_s3_bucket_public_access_block" "clickhouse_backup" {
+  bucket                  = aws_s3_bucket.clickhouse_backup.id
   block_public_acls       = true
   block_public_policy     = false
   ignore_public_acls      = true
   restrict_public_buckets = false
 }
 
-resource "aws_s3_bucket_policy" "stride_lite_backup" {
-  bucket     = aws_s3_bucket.stride_lite_backup.id
-  depends_on = [aws_s3_bucket_public_access_block.stride_lite_backup]
+resource "aws_s3_bucket_policy" "clickhouse_backup" {
+  bucket     = aws_s3_bucket.clickhouse_backup.id
+  depends_on = [aws_s3_bucket_public_access_block.clickhouse_backup]
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect    = "Allow"
       Principal = "*"
       Action    = ["s3:GetObject", "s3:ListBucket"]
-      Resource  = [aws_s3_bucket.stride_lite_backup.arn, "${aws_s3_bucket.stride_lite_backup.arn}/*"]
+      Resource  = [aws_s3_bucket.clickhouse_backup.arn, "${aws_s3_bucket.clickhouse_backup.arn}/*"]
     }]
   })
 }
 
-resource "aws_iam_user" "stride_lite_backup" {
-  name = "stride_lite_backup"
+resource "aws_iam_user" "clickhouse_backup" {
+  name = "openbus-clickhouse-backup"
 }
 
-resource "aws_iam_access_key" "stride_lite_backup" {
-  user = aws_iam_user.stride_lite_backup.name
+resource "aws_iam_access_key" "clickhouse_backup" {
+  user = aws_iam_user.clickhouse_backup.name
 }
 
-resource "aws_iam_user_policy" "stride_lite_backup" {
-  name = "stride_lite_backup_policy"
-  user = aws_iam_user.stride_lite_backup.name
+resource "aws_iam_user_policy" "clickhouse_backup" {
+  name = "openbus-clickhouse-backup-policy"
+  user = aws_iam_user.clickhouse_backup.name
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -123,8 +124,8 @@ resource "aws_iam_user_policy" "stride_lite_backup" {
         Effect = "Allow"
         Action = ["s3:ListBucket", "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:AbortMultipartUpload"]
         Resource = [
-          aws_s3_bucket.stride_lite_backup.arn,
-          "${aws_s3_bucket.stride_lite_backup.arn}/*",
+          aws_s3_bucket.clickhouse_backup.arn,
+          "${aws_s3_bucket.clickhouse_backup.arn}/*",
         ]
       },
       {
@@ -144,8 +145,8 @@ resource "vault_kv_secret_v2" "stride_lite" {
   name  = "Projects/OBus/stride-lite"
   data_json = jsonencode({
     server_ip             = kamatera_server.stride_lite.public_ips[0]
-    aws_access_key_id     = aws_iam_access_key.stride_lite_backup.id
-    aws_secret_access_key = aws_iam_access_key.stride_lite_backup.secret
-    backup_bucket         = aws_s3_bucket.stride_lite_backup.bucket
+    aws_access_key_id     = aws_iam_access_key.clickhouse_backup.id
+    aws_secret_access_key = aws_iam_access_key.clickhouse_backup.secret
+    backup_bucket         = aws_s3_bucket.clickhouse_backup.bucket
   })
 }
